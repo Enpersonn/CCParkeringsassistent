@@ -1,17 +1,20 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { Outlet, redirect } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { Outlet, redirect, useLoaderData } from "@remix-run/react";
+import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-    // const session = await getSession(request.headers.get("Cookie"));
-    // const user = session.get("user");
-    // if (!user) {
-    //     return redirect("/login");
-    // }
-    return null;
+	const { supabase, headers } = getSupabaseServerClient(request);
+	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+	if (!user) {
+		return redirect("/login");
+	}
+	return new Response(JSON.stringify(user));
 }
 
 export default function App() {
-    return (
-        <Outlet />
-    )
+	const { user } = useLoaderData<typeof loader>();
+	console.log("user", user);
+	return <Outlet context={{ user }} />;
 }
