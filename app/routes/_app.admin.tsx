@@ -5,7 +5,7 @@ import {
 	redirect,
 	useLoaderData,
 	useLocation,
-	useNavigate,
+	useRouteError,
 } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import { Card, CardHeader, CardContent, CardTitle } from "~/components/ui/card";
@@ -55,7 +55,7 @@ export default function Admin() {
 			<Card className=" w-full">
 				<CardHeader className="flex flex-row justify-between items-center gap-4">
 					<CardTitle className="text-xl font-bold">Admin</CardTitle>
-					<Button asChild>
+					<Button variant="outline" asChild>
 						<Link to="/admin/logs">View logs</Link>
 					</Button>
 				</CardHeader>
@@ -67,6 +67,13 @@ export default function Admin() {
 	);
 }
 
-export function ErrorBoundary({ error }: { error: Error }) {
-	return <div>Error: {error.message}</div>;
+export function ErrorBoundary() {
+	const error = useRouteError();
+	console.log(error);
+	return (
+		<div>
+			<h1>Error</h1>
+			<p>{error instanceof Error ? error.message : "Unknown error"}</p>
+		</div>
+	);
 }

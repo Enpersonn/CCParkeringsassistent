@@ -1,65 +1,55 @@
-import { PlusIcon } from "lucide-react";
-import {
-	Card,
-	CardTitle,
-	CardHeader,
-	CardContent,
-	CardFooter,
-} from "~/components/ui/card";
-import { Button } from "~/components/ui/button";
-import { Link } from "@remix-run/react";
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
+import StatsCard from "~/components/admin/dashboard/stats-card";
+import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+	const { supabase } = await getSupabaseServerClient(request);
+
+	const {
+		data: { session },
+	} = await supabase.auth.getSession();
+
+	const { data, error } = await supabase.functions.invoke("super-handler", {
+		headers: {
+			authorization: `Bearer ${session?.access_token}`,
+			"x-api-key": process.env.ADMIN_API_KEY || "",
+		},
+	});
+
+	if (error) throw new Error(error.message);
+
+	return { data };
+};
 
 export default function AdminIndex() {
+	const { data } = useLoaderData<typeof loader>();
 	return (
 		<div className="grid grid-cols-2 gap-4">
-			<Card>
-				<CardHeader className="flex flex-row justify-between items-center mb-4">
-					<h2 className="text-xl font-semibold">Users</h2>
-					<Button asChild variant={"link"} className="px-0">
-						<Link to="/admin/users">Manage</Link>
-					</Button>
-				</CardHeader>
-				<CardContent className="flex justify-between items-center">
-					<p className="text-muted-foreground">Total Users:</p>
-					<p className="text-lg font-bold">56</p>
-				</CardContent>
-			</Card>
-			<Card>
-				<CardHeader className="flex flex-row justify-between items-center mb-4">
-					<h2 className="text-xl font-semibold">Parking Spots</h2>
-					<Button asChild variant={"link"} className="px-0">
-						<Link to="/admin/parkingspots">Manage</Link>
-					</Button>
-				</CardHeader>
-				<CardContent className="flex justify-between items-center">
-					<p className="text-muted-foreground">Total Parking Spots:</p>
-					<p className="text-lg font-bold">17</p>
-				</CardContent>
-			</Card>
-			<Card>
-				<CardHeader className="flex flex-row justify-between items-center mb-4">
-					<h2 className="text-xl font-semibold">Parking Requests</h2>
-					<Button asChild variant={"link"} className="px-0">
-						<Link to="/admin/parking_request">Manage</Link>
-					</Button>
-				</CardHeader>
-				<CardContent className="flex justify-between items-center">
-					<p className="text-muted-foreground">Total Active Parkings:</p>
-					<p className="text-lg font-bold">13</p>
-				</CardContent>
-			</Card>
-			<Card>
-				<CardHeader className="flex flex-row justify-between items-center mb-4">
-					<h2 className="text-xl font-semibold">Guests</h2>
-					<Button asChild variant={"link"} className="px-0">
-						<Link to="/admin/guests">Manage</Link>
-					</Button>
-				</CardHeader>
-				<CardContent className="flex justify-between items-center">
-					<p className="text-muted-foreground">Total Active Guests:</p>
-					<p className="text-lg font-bold">12</p>
-				</CardContent>
-			</Card>
+			<StatsCard
+				title="Users"
+				valueTitle="Total Users"
+				value={data.totalUsers}
+				link="/admin/users"
+			/>
+			<StatsCard
+				title="Parking Spots"
+				valueTitle="Total Parking Spots"
+				value={data.parkingSpots}
+				link="/admin/parking-spots"
+			/>
+			<StatsCard
+				title="Parking Requests"
+				valueTitle="Total Active Parkings"
+				value={data.activeParkingRequests}
+				link="/admin/parking-request"
+			/>
+			<StatsCard
+				title="Guests"
+				valueTitle="Total Active Guests"
+				value={data.activeGuests}
+				link="/admin/guests"
+			/>
 		</div>
 	);
 }

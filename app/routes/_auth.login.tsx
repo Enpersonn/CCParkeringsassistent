@@ -39,6 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
 		const { headers, redirectTo } = await login(request, email, password);
 		return redirect(redirectTo, { headers });
 	} catch (error: unknown) {
+		console.error(error);
 		const errorMessage =
 			error instanceof Error ? error.message : "Wrong email or password";
 		return {

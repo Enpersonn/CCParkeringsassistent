@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, redirect, useLoaderData } from "@remix-run/react";
+import { Toaster } from "~/components/ui/sonner";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -31,5 +32,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function App() {
 	const { user } = useLoaderData<typeof loader>();
-	return <Outlet context={{ user }} />;
+	return (
+		<>
+			<Outlet context={{ user }} />
+			<Toaster />
+		</>
+	);
 }
