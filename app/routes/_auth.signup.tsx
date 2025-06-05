@@ -1,46 +1,131 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { Form } from "@remix-run/react";
+import { Form, Link, useNavigation, useActionData } from "@remix-run/react";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import {
+	Card,
+	CardContent,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "~/components/ui/card";
 import { signup } from "~/utils/supabase/auth_service/signup";
+import { Label } from "~/components/ui/label";
+import { z } from "zod";
 
+type ActionData = {
+	errors:
+		| {
+				type: "validation";
+				email?: string[];
+				password?: string[];
+				confirmPassword?: string[];
+		  }
+		| {
+				type: "form";
+				form: string[];
+		  };
+};
+
+const schema = z
+	.object({
+		email: z.string().email(),
+		password: z.string().min(6),
+		confirmPassword: z.string().min(6),
+	})
+	.refine((data) => data.password === data.confirmPassword, {
+		message: "Passwords must match",
+		path: ["confirmPassword"],
+	});
 export default function Signup() {
+	const actionData = useActionData<ActionData>();
+	const navigation = useNavigation();
+
 	return (
-		<div className="flex h-screen w-screen items-center justify-center">
-			<Form method="post">
-				<label htmlFor="email">
-					Email
-					<input type="email" name="email" />
-				</label>
-				<label htmlFor="password">
-					Password
-					<input type="password" name="password" />
-				</label>
-				<label htmlFor="confirmPassword">
-					Confirm Password
-					<input type="password" name="confirmPassword" />
-				</label>
-				<button type="submit">Sign up</button>
+		<div className="flex h-screen w-screen items-center justify-center max-w-5xl mx-auto px-4">
+			<Form method="post" className="w-full">
+				<Card className=" w-full space-y-4">
+					<CardHeader>
+						<CardTitle>Sign Up</CardTitle>
+					</CardHeader>
+					<CardContent className="w-full space-y-4">
+						<div className="flex flex-col gap-2 w-full">
+							<Label>Email</Label>
+							<Input type="email" name="email" />
+							{actionData?.errors?.type === "validation" &&
+								actionData.errors.email && (
+									<p className="text-sm text-destructive">
+										{actionData.errors.email[0]}
+									</p>
+								)}
+						</div>
+						<div className="flex gap-2 w-full">
+							<div className="flex flex-col gap-2 w-full">
+								<Label className="w-full">Password</Label>
+								<Input type="password" name="password" />
+								{actionData?.errors?.type === "validation" &&
+									actionData.errors.password && (
+										<p className="text-sm text-destructive">
+											{actionData.errors.password[0]}
+										</p>
+									)}
+							</div>
+							<div className="flex flex-col gap-2 w-full">
+								<Label className="w-full">Confirm Password</Label>
+								<Input type="password" name="confirmPassword" />
+								{actionData?.errors?.type === "validation" &&
+									actionData.errors.confirmPassword && (
+										<p className="text-sm text-destructive">
+											{actionData.errors.confirmPassword[0]}
+										</p>
+									)}
+							</div>
+						</div>
+						{actionData?.errors?.type === "form" && (
+							<p className="text-sm text-destructive">
+								{actionData.errors.form[0]}
+							</p>
+						)}
+					</CardContent>
+					<CardFooter className="flex justify-between">
+						<Button variant="link" asChild>
+							<Link to="/login">Login</Link>
+						</Button>
+						<Button type="submit" disabled={navigation.state === "submitting"}>
+							{navigation.state === "submitting" ? "Signing up..." : "Sign up"}
+						</Button>
+					</CardFooter>
+				</Card>
 			</Form>
 		</div>
 	);
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-	const formData = await request.formData();
-	const email = formData.get("email")?.toString() ?? "";
-	const password = formData.get("password")?.toString() ?? "";
-	const confirmPassword = formData.get("confirmPassword")?.toString() ?? "";
+	const formData = Object.fromEntries(await request.formData());
+	const result = schema.safeParse(formData);
 
-	if (password !== confirmPassword) {
-		return new Response(JSON.stringify({ error: "Passwords do not match" }), {
-			status: 400,
-		});
+	if (!result.success) {
+		return {
+			errors: {
+				type: "validation" as const,
+				...result.error.flatten().fieldErrors,
+			},
+		};
 	}
+
+	const { email, password, confirmPassword } = result.data;
+
 	try {
-		const response = await signup(request, email, password, confirmPassword);
-		return response;
-	} catch (error) {
-		return new Response(JSON.stringify({ error: "Failed to sign up" }), {
-			status: 400,
-		});
+		return await signup(request, email, password, confirmPassword);
+	} catch (error: unknown) {
+		const errorMessage =
+			error instanceof Error ? error.message : "Failed to sign up";
+		return {
+			errors: {
+				type: "form" as const,
+				form: [errorMessage],
+			},
+		};
 	}
 }

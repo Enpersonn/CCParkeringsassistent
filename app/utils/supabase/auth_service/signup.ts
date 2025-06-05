@@ -14,7 +14,7 @@ export async function signup(
 
 	const { supabase, headers } = getSupabaseServerClient(request);
 
-	const { data, error } = await supabase.auth.signUp({
+	const { data: authData, error: authError } = await supabase.auth.signUp({
 		email,
 		password,
 		options: {
@@ -22,10 +22,34 @@ export async function signup(
 		},
 	});
 
-	if (error) {
-		throw new Response(JSON.stringify({ error: error.message }), {
+	if (authError) {
+		throw new Response(JSON.stringify({ error: authError.message }), {
 			status: 400,
 		});
+	}
+
+	const userId = authData.user?.id;
+
+	if (!userId) {
+		throw new Response(
+			JSON.stringify({ error: "User ID missing after sign up" }),
+			{
+				status: 500,
+			},
+		);
+	}
+
+	const { error: profileError } = await supabase
+		.from("profiles")
+		.insert([{ id: userId, is_verified: false }]);
+
+	if (profileError) {
+		throw new Response(
+			JSON.stringify({ error: "Failed to create user profile" }),
+			{
+				status: 500,
+			},
+		);
 	}
 
 	return redirect("/check_email", { headers });
