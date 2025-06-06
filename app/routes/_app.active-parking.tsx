@@ -5,8 +5,10 @@ import {
 } from "@remix-run/node";
 import { useOutletContext } from "@remix-run/react";
 import { Form, useLoaderData } from "@remix-run/react/dist/components";
+import { CalendarIcon, MapPinIcon } from "lucide-react";
 import AdminButton from "~/components/general/admin-button";
 import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import type { User } from "~/types/app/user";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 
@@ -54,34 +56,53 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 		id: parkingRequest.id,
 		expires_at: parkingRequest.expires_at,
 		location_name: parkingLocation.Name,
+		created_at: parkingRequest.created_at,
 	};
 };
 
 export default function ActiveParking() {
-	const { id, location_name, expires_at } = useLoaderData<typeof loader>();
+	const { id, location_name, expires_at, created_at } =
+		useLoaderData<typeof loader>();
 	const { user } = useOutletContext<{ user: User }>();
 
 	return (
-		<div className="flex flex-col gap-5 h-screen w-screen items-start pt-10 justify-start max-w-5xl mx-auto px-4 relative">
+		<div className="flex flex-col gap-5 h-screen w-screen secondary  items-start pt-10 md:pt-20 justify-start max-w-xl mx-auto px-4 relative">
 			<AdminButton isAdmin={user.is_admin} />
-			<div className="flex flex-col items-center gap-16 w-full">
-				<div className="flex flex-col items-center gap-9">
-					<h1 className="text-2xl font-bold">Du er parkert</h1>
-					<p className="text-sm text-muted-foreground">
-						Du er parkert på {location_name}.
-					</p>
-					<p className="text-sm text-muted-foreground">
-						Du er parkert til {new Date(expires_at).toLocaleString()}.
-					</p>
-
-					<Form method="post">
-						<input type="hidden" name="parkingRequestId" value={id} />
-						<Button type="submit" variant="destructive">
-							Avslutt parkering
-						</Button>
-					</Form>
-				</div>
+			<div className="flex flex-col items-center gap-4 w-full">
+				<h1 className="text-2xl font-bold">Du har parkert!</h1>
 			</div>
+			<Card className="flex flex-col items-center gap-16 w-full">
+				<CardHeader className="flex flex-col items-center gap-9 justify-start">
+					<p className="text-sm text-muted-foreground flex items-center gap-2 justify-start">
+						Lokasjon: {location_name} <MapPinIcon className="size-4" />
+					</p>
+				</CardHeader>
+				<CardContent className="flex flex-col items-center gap-6">
+					<div className="flex flex-col items-center gap-3">
+						<CalendarIcon className="size-6 text-muted-foreground" />
+						<p className="text-base text-muted-foreground">
+							Startet parkering:{" "}
+							{new Date(created_at).toLocaleTimeString([], {
+								hour: "2-digit",
+								minute: "2-digit",
+							})}
+						</p>
+						<p className="text-base text-muted-foreground">
+							Du er parkert til{" "}
+							{new Date(expires_at).toLocaleTimeString([], {
+								hour: "2-digit",
+								minute: "2-digit",
+							})}
+						</p>
+					</div>
+				</CardContent>
+			</Card>
+			<Form method="post" className="w-full">
+				<input type="hidden" name="parkingRequestId" value={id} />
+				<Button type="submit" variant="destructive" className="w-full">
+					Avslutt parkering
+				</Button>
+			</Form>
 		</div>
 	);
 }

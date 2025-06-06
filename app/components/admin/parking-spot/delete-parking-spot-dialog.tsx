@@ -1,5 +1,5 @@
 import { useFetcher } from "@remix-run/react";
-import { TrashIcon } from "lucide-react";
+import { Loader2, TrashIcon } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
@@ -39,16 +39,30 @@ export default function DeleteParkingSpotDialog({ id }: { id: string }) {
 			<DialogContent>
 				<fetcher.Form method="post" action={"/admin/parking-spots/delete"}>
 					<input type="hidden" name="id" value={id} />
-					<DialogTitle>Slett parkeringsplass</DialogTitle>
-					<DialogDescription>
-						Er du sikker på at du vil slette parkeringsplassen?
-					</DialogDescription>
-					<DialogFooter>
-						<Button variant="destructive" type="submit">
-							<TrashIcon className="size-4" />
-							Slett
-						</Button>
-					</DialogFooter>
+					<div className="flex flex-col gap-8">
+						<div className="flex flex-col gap-1 justify-start">
+							<DialogTitle>Slett parkeringsplass</DialogTitle>
+							<DialogDescription>
+								Er du sikker på at du vil slette parkeringsplassen?
+							</DialogDescription>
+						</div>
+						<DialogFooter>
+							<Button
+								variant="destructive"
+								type="submit"
+								disabled={fetcher.state === "submitting"}
+							>
+								{fetcher.state === "submitting" ? (
+									<Loader2 className="size-4 animate-spin" />
+								) : (
+									<>
+										<TrashIcon className="size-4" />
+										Slett
+									</>
+								)}
+							</Button>
+						</DialogFooter>
+					</div>
 				</fetcher.Form>
 			</DialogContent>
 		</Dialog>

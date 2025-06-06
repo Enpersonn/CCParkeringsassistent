@@ -3,7 +3,7 @@ import {
 	type LoaderFunctionArgs,
 	redirect,
 } from "@remix-run/node";
-import { useOutletContext } from "@remix-run/react";
+import { useNavigate, useNavigation, useOutletContext } from "@remix-run/react";
 import { Form, useLoaderData } from "@remix-run/react/dist/components";
 import ParkingLocationCard from "~/components/app/parking-location-card";
 import AdminButton from "~/components/general/admin-button";
@@ -47,44 +47,54 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function Index() {
 	const { parkingLocations } = useLoaderData<typeof loader>();
 	const { user } = useOutletContext<{ user: User }>();
+	const navigation = useNavigation();
 
 	return (
-		<div className="flex flex-col gap-5 h-screen w-screen items-start pt-10 justify-start max-w-5xl mx-auto px-4 relative">
-			<AdminButton isAdmin={user.is_admin} />
-			<div className="flex flex-col items-center gap-10 w-full">
-				<div className="flex flex-col items-center gap-4">
-					<h1 className="text-xl font-bold">Velkommen {user.email}</h1>
-					<p className="text-sm text-muted-foreground">
-						Trykk på lokasjonen du står parkert på.
-					</p>
+		<>
+			{navigation.state === "loading" && (
+				<div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black/50 z-[9999]">
+					<div className="text-white text-2xl font-bold">Loading...</div>
 				</div>
-				<div className="flex flex-col gap-4 w-full">
-					{parkingLocations.map((location) => {
-						const isDisabled =
-							location.active_parking_spots >= location.parking_spots.length;
-						return (
-							<Form method="post" key={location.Name}>
-								<input
-									type="hidden"
-									name="locationName"
-									value={location.Name}
-								/>
-								<input type="hidden" name="userId" value={user.id} />
-								<ParkingLocationCard
-									data={{
-										isDisabled,
-										isIndoors: location.is_indoors || false,
-										name: location.Name,
-										activeParkingSpots: location.active_parking_spots,
-										parkingSpots: location.parking_spots.length,
-									}}
-								/>
-							</Form>
-						);
-					})}
+			)}
+			<div className="flex flex-col gap-5 h-screen w-screen items-start pt-10 justify-start max-w-xl mx-auto px-4 relative">
+				<AdminButton isAdmin={user.is_admin} />
+				<div className="flex flex-col items-center gap-10 w-full">
+					<div className="flex flex-col items-center gap-4">
+						<h1 className="text-xl font-bold">Velkommen {user.email}</h1>
+						<p className="text-sm text-muted-foreground">
+							Trykk på lokasjonen du står parkert på.
+						</p>
+					</div>
+					<div className="flex flex-col gap-4 w-full">
+						{parkingLocations.map((location) => {
+							const isDisabled =
+								location.active_parking_spots >=
+									location.parking_spots.length ||
+								navigation.state === "loading";
+							return (
+								<Form method="post" key={location.Name}>
+									<input
+										type="hidden"
+										name="locationName"
+										value={location.Name}
+									/>
+									<input type="hidden" name="userId" value={user.id} />
+									<ParkingLocationCard
+										data={{
+											isDisabled,
+											isIndoors: location.is_indoors || false,
+											name: location.Name,
+											activeParkingSpots: location.active_parking_spots,
+											parkingSpots: location.parking_spots.length,
+										}}
+									/>
+								</Form>
+							);
+						})}
+					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 }
 

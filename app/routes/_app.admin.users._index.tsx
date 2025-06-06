@@ -9,6 +9,7 @@ import { EyeIcon } from "lucide-react";
 import BasicTable from "~/components/general/table/basic-table";
 import { Button } from "~/components/ui/button";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
+import { getCachedData, generateCacheKey } from "~/utils/cache.server";
 
 type User = {
 	id: string;
@@ -24,31 +25,45 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 	if (!session) throw new Error("Not authenticated");
 
-	const edgeRes = await supabase.functions.invoke("list-users", {
-		headers: {
-			Authorization: `Bearer ${session.access_token}`,
-			"x-api-key": process.env.ADMIN_API_KEY as string,
+	// Use caching for user list data
+	const response = await getCachedData(
+		{
+			key: generateCacheKey("admin-users-list", { userId: session.user.id }),
+			ttl: 1000 * 60 * 5, // Cache for 5 minutes
 		},
-		body: {
-			access_token: session.access_token,
-		},
-	});
+		async () => {
+			const edgeRes = await supabase.functions.invoke("list-users", {
+				headers: {
+					Authorization: `Bearer ${session.access_token}`,
+					"x-api-key": process.env.ADMIN_API_KEY as string,
+				},
+				body: {
+					access_token: session.access_token,
+				},
+			});
 
-	const { data: profileData } = await supabase.from("profiles").select("*");
+			const { data: profileData } = await supabase.from("profiles").select("*");
 
-	const response = edgeRes.data.users.map(
-		(user: { id: string; email: string; app_metadata: { role: string } }) => {
-			const profile = profileData?.find((p) => p.id === user.id);
-			return {
-				id: user.id,
-				email: user.email,
-				is_admin: user?.app_metadata?.role === "admin",
-				is_verified: profile?.is_verified,
-			};
+			const users = edgeRes.data.users.map(
+				(user: {
+					id: string;
+					email: string;
+					app_metadata: { role: string };
+				}) => {
+					const profile = profileData?.find((p) => p.id === user.id);
+					return {
+						id: user.id,
+						email: user.email,
+						is_admin: user?.app_metadata?.role === "admin",
+						is_verified: profile?.is_verified,
+					};
+				},
+			);
+
+			if (!edgeRes.data) throw new Error("Failed to fetch users");
+			return users;
 		},
 	);
-
-	if (!edgeRes.data) throw new Error("Failed to fetch users");
 
 	return { data: response };
 };
