@@ -4,7 +4,7 @@ import { Toaster } from "~/components/ui/sonner";
 import type { User } from "~/types/app/user";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 import GlobalErrorBoundary from "~/view/global-error-boundary";
-
+import { NuqsAdapter } from "nuqs/adapters/remix";
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { supabase } = getSupabaseServerClient(request);
 	const {
@@ -32,10 +32,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function App() {
 	const user = useLoaderData<typeof loader>();
 	return (
-		<>
+		<NuqsAdapter>
 			<Outlet context={{ user }} />
 			<Toaster />
-		</>
+		</NuqsAdapter>
 	);
 }
 

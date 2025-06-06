@@ -50,6 +50,12 @@ export default function AdminIndex() {
 				value={data.activeGuests}
 				link="/admin/guests"
 			/>
+			<StatsCard
+				title="Locations"
+				valueTitle="Total lokasjoner"
+				value={data.locations}
+				link="/admin/parking-locations"
+			/>
 		</div>
 	);
 }

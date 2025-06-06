@@ -3,20 +3,19 @@ import { Link, useLoaderData } from "@remix-run/react";
 import {
 	createColumnHelper,
 	getCoreRowModel,
-	SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
-import { EyeIcon, PlusIcon } from "lucide-react";
+import { EyeIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import NewParkingSpotDialog from "~/components/admin/parking-spot/new-parking-spot-dialog";
 import BasicTable from "~/components/general/table/basic-table";
 import { Button } from "~/components/ui/button";
 import {
 	Select,
-	SelectValue,
-	SelectTrigger,
-	SelectItem,
 	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from "~/components/ui/select";
 import type { ParkingLocation } from "~/types/app/parking-location";
 import type { ParkingSpot } from "~/types/app/parking-spot";

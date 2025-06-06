@@ -6,13 +6,16 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	const formData = await request.formData();
 
-	const id = formData.get("id");
+	const name = formData.get("Name");
 
-	if (!id) return { error: "ID is required" };
+	if (!name) return { error: "Navn er påkrevd" };
 
-	const { error } = await supabase.from("parking_spots").delete().eq("id", id);
+	const { error } = await supabase
+		.from("parking_locations")
+		.delete()
+		.eq("Name", name);
 
 	if (error) return { error: error.message };
 
-	return redirect("/admin/parking-spots");
+	return redirect("/admin/parking-locations");
 }

@@ -36,7 +36,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 			},
 		},
 	);
-	return { parkingLocations: parkingLocations as ParkingLocation[] };
+
+	const parsedParkingLocations = parkingLocations.filter(
+		(location: ParkingLocation) => location.parking_spots.length > 0,
+	);
+
+	return { parkingLocations: parsedParkingLocations as ParkingLocation[] };
 };
 
 export default function Index() {
