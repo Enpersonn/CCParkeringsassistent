@@ -25,6 +25,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 		.eq("is_active", true)
 		.single();
 
+	if (
+		parkingRequest.expires_at &&
+		new Date(parkingRequest.expires_at) < new Date()
+	) {
+		await supabase
+			.from("parking_requests")
+			.update({ is_active: false })
+			.eq("id", parkingRequest.id);
+		return redirect("/");
+	}
+
 	if (!parkingRequest) return redirect("/");
 
 	const { data: parkingSpot } = await supabase
@@ -60,7 +71,7 @@ export default function ActiveParking() {
 						Du er parkert på {location_name}.
 					</p>
 					<p className="text-sm text-muted-foreground">
-						Du kan parkert til {expires_at}.
+						Du er parkert til {new Date(expires_at).toLocaleString()}.
 					</p>
 
 					<Form method="post">
