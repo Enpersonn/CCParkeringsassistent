@@ -6,6 +6,7 @@ import {
 import { useOutletContext } from "@remix-run/react";
 import { Form, useLoaderData } from "@remix-run/react/dist/components";
 import ParkingLocationCard from "~/components/app/parking-location-card";
+import AdminButton from "~/components/general/admin-button";
 import reserveParkingSpot from "~/lib/parking/reserve.server";
 import type { ParkingLocation } from "~/types/app/parking-location";
 import type { User } from "~/types/app/user";
@@ -43,7 +44,8 @@ export default function Index() {
 	const { user } = useOutletContext<{ user: User }>();
 
 	return (
-		<div className="flex flex-col gap-5 h-screen w-screen items-start pt-10 justify-start max-w-5xl mx-auto px-4">
+		<div className="flex flex-col gap-5 h-screen w-screen items-start pt-10 justify-start max-w-5xl mx-auto px-4 relative">
+			<AdminButton isAdmin={user.is_admin} />
 			<div className="flex flex-col items-center gap-10 w-full">
 				<div className="flex flex-col items-center gap-4">
 					<h1 className="text-xl font-bold">Velkommen {user.email}</h1>

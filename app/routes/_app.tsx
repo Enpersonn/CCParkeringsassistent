@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, redirect, useLoaderData } from "@remix-run/react";
 import { Toaster } from "~/components/ui/sonner";
+import type { User } from "~/types/app/user";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 import GlobalErrorBoundary from "~/view/global-error-boundary";
 
@@ -24,7 +25,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		id: user.id,
 		email: user.email,
 		license_plate: userData?.license_plate,
-	};
+		is_admin: user.app_metadata?.role === "admin",
+	} as User;
 }
 
 export default function App() {

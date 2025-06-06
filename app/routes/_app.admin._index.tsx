@@ -28,25 +28,25 @@ export default function AdminIndex() {
 		<div className="grid grid-cols-2 gap-4">
 			<StatsCard
 				title="Users"
-				valueTitle="Total Users"
+				valueTitle="Total brukere"
 				value={data.totalUsers}
 				link="/admin/users"
 			/>
 			<StatsCard
 				title="Parking Spots"
-				valueTitle="Total Parking Spots"
+				valueTitle="Total parkeringsplasser"
 				value={data.parkingSpots}
 				link="/admin/parking-spots"
 			/>
 			<StatsCard
 				title="Parking Requests"
-				valueTitle="Total Active Parkings"
+				valueTitle="Total aktive parkeringer"
 				value={data.activeParkingRequests}
 				link="/admin/parking-request"
 			/>
 			<StatsCard
 				title="Guests"
-				valueTitle="Total Active Guests"
+				valueTitle="Total aktive gjester"
 				value={data.activeGuests}
 				link="/admin/guests"
 			/>

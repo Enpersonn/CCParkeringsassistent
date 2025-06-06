@@ -3,8 +3,11 @@ import {
 	type LoaderFunctionArgs,
 	redirect,
 } from "@remix-run/node";
+import { useOutletContext } from "@remix-run/react";
 import { Form, useLoaderData } from "@remix-run/react/dist/components";
+import AdminButton from "~/components/general/admin-button";
 import { Button } from "~/components/ui/button";
+import type { User } from "~/types/app/user";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -38,31 +41,32 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 	return {
 		id: parkingRequest.id,
+		expires_at: parkingRequest.expires_at,
 		location_name: parkingLocation.Name,
-		parking_spot: {
-			id: parkingSpot.id,
-			name: parkingSpot.Name,
-		},
 	};
 };
 
 export default function ActiveParking() {
-	const { id, location_name, parking_spot } = useLoaderData<typeof loader>();
+	const { id, location_name, expires_at } = useLoaderData<typeof loader>();
+	const { user } = useOutletContext<{ user: User }>();
 
 	return (
-		<div className="flex flex-col gap-5 h-screen w-screen items-start pt-10 justify-start max-w-5xl mx-auto px-4">
+		<div className="flex flex-col gap-5 h-screen w-screen items-start pt-10 justify-start max-w-5xl mx-auto px-4 relative">
+			<AdminButton isAdmin={user.is_admin} />
 			<div className="flex flex-col items-center gap-16 w-full">
 				<div className="flex flex-col items-center gap-9">
-					<h1 className="text-2xl font-bold">Active Parking</h1>
+					<h1 className="text-2xl font-bold">Du er parkert</h1>
 					<p className="text-sm text-muted-foreground">
-						You are currently parked at {location_name} in spot{" "}
-						{parking_spot.name}.
+						Du er parkert på {location_name}.
+					</p>
+					<p className="text-sm text-muted-foreground">
+						Du kan parkert til {expires_at}.
 					</p>
 
 					<Form method="post">
 						<input type="hidden" name="parkingRequestId" value={id} />
 						<Button type="submit" variant="destructive">
-							Leave Parking
+							Avslutt parkering
 						</Button>
 					</Form>
 				</div>
