@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { Outlet, redirect, useLoaderData, useNavigate } from "@remix-run/react";
+import { Outlet, redirect, useLoaderData } from "@remix-run/react";
 import { Toaster } from "~/components/ui/sonner";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 import GlobalErrorBoundary from "~/view/global-error-boundary";

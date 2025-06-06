@@ -11,7 +11,7 @@ import {
 } from "~/components/ui/card";
 import { signup } from "~/utils/supabase/auth_service/signup";
 import { Label } from "~/components/ui/label";
-import { z } from "zod";
+import { signupSchema } from "~/schemas/auth/signup";
 
 type ActionData = {
 	errors:
@@ -27,16 +27,6 @@ type ActionData = {
 		  };
 };
 
-const schema = z
-	.object({
-		email: z.string().email(),
-		password: z.string().min(6),
-		confirmPassword: z.string().min(6),
-	})
-	.refine((data) => data.password === data.confirmPassword, {
-		message: "Passwords must match",
-		path: ["confirmPassword"],
-	});
 export default function Signup() {
 	const actionData = useActionData<ActionData>();
 	const navigation = useNavigation();
@@ -103,7 +93,7 @@ export default function Signup() {
 
 export async function action({ request }: ActionFunctionArgs) {
 	const formData = Object.fromEntries(await request.formData());
-	const result = schema.safeParse(formData);
+	const result = signupSchema.safeParse(formData);
 
 	if (!result.success) {
 		return {

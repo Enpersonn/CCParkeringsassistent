@@ -3,7 +3,6 @@ import {
 	type LoaderFunctionArgs,
 	redirect,
 } from "@remix-run/node";
-import { useRouteError } from "@remix-run/react";
 import { Form, useLoaderData } from "@remix-run/react/dist/components";
 import { Button } from "~/components/ui/button";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
@@ -12,9 +11,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const { supabase } = getSupabaseServerClient(request);
 	const { data: userData, error: userError } = await supabase.auth.getUser();
 
-	if (userError || !userData?.user) {
-		return redirect("/login");
-	}
+	if (userError || !userData?.user) return redirect("/login");
 
 	const user = userData.user;
 

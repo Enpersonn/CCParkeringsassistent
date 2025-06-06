@@ -14,42 +14,8 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
 import { Link } from "@remix-run/react";
+import { loginSchema } from "~/schemas/auth/login";
 
-const schema = z.object({
-	email: z.string().email(),
-	password: z.string(),
-});
-
-export async function action({ request }: ActionFunctionArgs) {
-	const formData = Object.fromEntries(await request.formData());
-	const result = schema.safeParse(formData);
-
-	if (!result.success) {
-		return {
-			errors: {
-				type: "validation" as const,
-				...result.error.flatten().fieldErrors,
-			},
-		};
-	}
-
-	const { email, password } = result.data;
-
-	try {
-		const { headers, redirectTo } = await login(request, email, password);
-		return redirect(redirectTo, { headers });
-	} catch (error: unknown) {
-		console.error(error);
-		const errorMessage =
-			error instanceof Error ? error.message : "Wrong email or password";
-		return {
-			errors: {
-				type: "form" as const,
-				form: [errorMessage],
-			},
-		};
-	}
-}
 export default function Login() {
 	const navigation = useNavigation();
 	const actionData = useActionData<typeof action>();
@@ -100,4 +66,35 @@ export default function Login() {
 			</Form>
 		</div>
 	);
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+	const formData = Object.fromEntries(await request.formData());
+	const result = loginSchema.safeParse(formData);
+
+	if (!result.success) {
+		return {
+			errors: {
+				type: "validation" as const,
+				...result.error.flatten().fieldErrors,
+			},
+		};
+	}
+
+	const { email, password } = result.data;
+
+	try {
+		const { headers, redirectTo } = await login(request, email, password);
+		return redirect(redirectTo, { headers });
+	} catch (error: unknown) {
+		console.error(error);
+		const errorMessage =
+			error instanceof Error ? error.message : "Wrong email or password";
+		return {
+			errors: {
+				type: "form" as const,
+				form: [errorMessage],
+			},
+		};
+	}
 }

@@ -6,6 +6,7 @@ import {
 import { useOutletContext } from "@remix-run/react";
 import { Form, useLoaderData } from "@remix-run/react/dist/components";
 import ParkingLocationCard from "~/components/app/parking-location-card";
+import reserveParkingSpot from "~/lib/parking/reserve.server";
 import type { ParkingLocation } from "~/types/app/parking-location";
 import type { User } from "~/types/app/user";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
@@ -83,6 +84,7 @@ export default function Index() {
 export const action = async ({ request }: ActionFunctionArgs) => {
 	const { supabase } = getSupabaseServerClient(request);
 
+	const RETRY_LIMIT = 3;
 	const formData = await request.formData();
 	const locationName = formData.get("locationName");
 	const userId = formData.get("userId");
@@ -98,50 +100,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 	if (spotsError) return { error: spotsError.message };
 	if (!parkingSpots?.length) return { error: "No parking spots found" };
 
-	const { data: activeRequests, error: requestError } = await supabase
-		.from("parking_requests")
-		.select("parking_spot")
-		.in(
-			"parking_spot",
-			parkingSpots.map((spot) => spot.id),
-		)
-		.eq("is_active", true);
+	for (let i = 0; i < RETRY_LIMIT; i++) {
+		const result = await reserveParkingSpot({
+			supabase,
+			userId,
+			parkingSpots,
+		});
 
-	if (requestError) return { error: requestError.message };
-
-	const unavailableIds = new Set(activeRequests?.map((r) => r.parking_spot));
-	const availableSpot = parkingSpots.find((s) => !unavailableIds.has(s.id));
-
-	if (!availableSpot) return { error: "No available parking spots" };
-
-	const expires = getExpiryTime();
-
-	const { error: insertError } = await supabase
-		.from("parking_requests")
-		.insert([
-			{
-				user_id: userId,
-				parking_spot: availableSpot.id,
-				is_active: true,
-				created_at: new Date(),
-				expires_at: expires,
-			},
-		])
-		.select()
-		.single();
-
-	if (insertError) return { error: insertError.message };
-
-	return redirect("/active-parking");
-};
-
-function getExpiryTime(): Date {
-	const now = new Date();
-	const expires = new Date(now);
-	expires.setHours(17, 0, 0, 0);
-	if (now > expires) {
-		expires.setDate(expires.getDate() + 1);
-		expires.setHours(0, 0, 0, 0);
+		if (result && "success" in result) return redirect("/active-parking");
+		if (result && "error" in result) return { error: result.error };
 	}
-	return expires;
-}
+
+	return { error: "Failed to reserve parking spot" };
+};
