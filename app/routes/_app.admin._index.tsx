@@ -11,13 +11,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 		data: { session },
 	} = await supabase.auth.getSession();
 
-	// Use caching for dashboard data
 	const data = await getCachedData(
 		{
 			key: generateCacheKey("admin-dashboard", {
 				userId: session?.user.id || "anonymous",
 			}),
-			ttl: 1000 * 60 * 2, // Cache for 2 minutes
+			ttl: 1000 * 60 * 2,
 		},
 		async () => {
 			const { data, error } = await supabase.functions.invoke("super-handler", {

@@ -18,13 +18,11 @@ export async function getCachedData<T extends CacheValue>(
 ): Promise<T> {
 	const { key, ttl } = options;
 
-	// Try to get data from cache
 	const cachedData = cache.get(key);
 	if (cachedData) {
 		return cachedData as T;
 	}
 
-	// If not in cache, fetch and store
 	const data = await fetchFn();
 	cache.set(key, data, { ttl });
 	return data;
@@ -42,7 +40,6 @@ export function invalidateCacheByPrefix(prefix: string) {
 	}
 }
 
-// Helper to generate cache keys
 export function generateCacheKey(
 	prefix: string,
 	params: Record<string, string | number>,

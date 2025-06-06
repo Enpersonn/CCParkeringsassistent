@@ -10,6 +10,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	const {
 		data: { user },
 	} = await supabase.auth.getUser();
+	const session = await supabase.auth.getSession();
 
 	if (!user) return redirect("/login");
 
@@ -26,6 +27,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		email: user.email,
 		license_plate: userData?.license_plate,
 		is_admin: user.app_metadata?.role === "admin",
+		access_token: session.data.session?.access_token,
 	} as User;
 }
 

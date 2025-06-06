@@ -6,6 +6,7 @@ import {
 import { useNavigate, useNavigation, useOutletContext } from "@remix-run/react";
 import { Form, useLoaderData } from "@remix-run/react/dist/components";
 import ParkingLocationCard from "~/components/app/parking-location-card";
+import ProfileSettingsDialog from "~/components/app/profile-settings-dialog";
 import AdminButton from "~/components/general/admin-button";
 import reserveParkingSpot from "~/lib/parking/reserve.server";
 import type { ParkingLocation } from "~/types/app/parking-location";
@@ -58,6 +59,7 @@ export default function Index() {
 			)}
 			<div className="flex flex-col gap-5 h-screen w-screen items-start pt-10 justify-start max-w-xl mx-auto px-4 relative">
 				<AdminButton isAdmin={user.is_admin} />
+				<ProfileSettingsDialog />
 				<div className="flex flex-col items-center gap-10 w-full">
 					<div className="flex flex-col items-center gap-4">
 						<h1 className="text-xl font-bold">Velkommen {user.email}</h1>

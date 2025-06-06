@@ -25,11 +25,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 	if (!session) throw new Error("Not authenticated");
 
-	// Use caching for user list data
 	const response = await getCachedData(
 		{
 			key: generateCacheKey("admin-users-list", { userId: session.user.id }),
-			ttl: 1000 * 60 * 5, // Cache for 5 minutes
+			ttl: 1000 * 60 * 5,
 		},
 		async () => {
 			const edgeRes = await supabase.functions.invoke("list-users", {

@@ -3,4 +3,5 @@ export type User = {
 	email: string;
 	license_plate: string;
 	is_admin: boolean;
+	access_token: string;
 };
