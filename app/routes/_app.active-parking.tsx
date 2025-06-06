@@ -74,16 +74,6 @@ export default function ActiveParking() {
 	);
 }
 
-export function ErrorBoundary() {
-	const error = useRouteError();
-	return (
-		<div className="flex flex-col items-center gap-16 h-screen w-screen justify-center">
-			<h1>Error</h1>
-			<p>{error instanceof Error ? error.message : "Unknown error"}</p>
-		</div>
-	);
-}
-
 export async function action({ request }: ActionFunctionArgs) {
 	const { supabase } = getSupabaseServerClient(request);
 

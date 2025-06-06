@@ -1,7 +1,8 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { Outlet, redirect, useLoaderData } from "@remix-run/react";
+import { Outlet, redirect, useLoaderData, useNavigate } from "@remix-run/react";
 import { Toaster } from "~/components/ui/sonner";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
+import GlobalErrorBoundary from "~/view/global-error-boundary";
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { supabase } = getSupabaseServerClient(request);
@@ -9,33 +10,33 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		data: { user },
 	} = await supabase.auth.getUser();
 
-	if (!user) {
-		return redirect("/login");
-	}
+	if (!user) return redirect("/login");
 
 	const { data: userData } = await supabase
 		.from("profiles")
-		.select("license_plate")
+		.select("license_plate, is_verified")
 		.eq("id", user.id)
 		.single();
 
-	const data = {
-		user: {
-			id: user.id,
-			email: user.email,
-			license_plate: userData?.license_plate,
-		},
-	};
+	if (!userData || !userData.is_verified) return redirect("/auth/callback");
 
-	return data;
+	return {
+		id: user.id,
+		email: user.email,
+		license_plate: userData?.license_plate,
+	};
 }
 
 export default function App() {
-	const { user } = useLoaderData<typeof loader>();
+	const user = useLoaderData<typeof loader>();
 	return (
 		<>
 			<Outlet context={{ user }} />
 			<Toaster />
 		</>
 	);
+}
+
+export function ErrorBoundary() {
+	return <GlobalErrorBoundary />;
 }

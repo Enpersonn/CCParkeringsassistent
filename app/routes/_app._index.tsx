@@ -5,31 +5,10 @@ import {
 } from "@remix-run/node";
 import { useOutletContext } from "@remix-run/react";
 import { Form, useLoaderData } from "@remix-run/react/dist/components";
-import {
-	Card,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "~/components/ui/card";
+import ParkingLocationCard from "~/components/app/parking-location-card";
+import type { ParkingLocation } from "~/types/app/parking-location";
+import type { User } from "~/types/app/user";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
-
-type User = {
-	id: string;
-	email: string;
-	license_plate: string;
-};
-
-type ParkingLocation = {
-	Name: string;
-	created_at: string;
-	is_indoors: boolean | null;
-	parking_spots: {
-		id: string;
-		name: string;
-		is_active: boolean;
-	}[];
-	active_parking_spots: number;
-};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const { supabase } = getSupabaseServerClient(request);
@@ -64,36 +43,37 @@ export default function Index() {
 
 	return (
 		<div className="flex flex-col gap-5 h-screen w-screen items-start pt-10 justify-start max-w-5xl mx-auto px-4">
-			<div className="flex flex-col items-center gap-16 w-full">
-				<div className="flex flex-col items-center gap-9">
-					<h1 className="text-2xl font-bold">Welcome {user.email}</h1>
+			<div className="flex flex-col items-center gap-10 w-full">
+				<div className="flex flex-col items-center gap-4">
+					<h1 className="text-xl font-bold">Velkommen {user.email}</h1>
 					<p className="text-sm text-muted-foreground">
-						Select a parking location
+						Trykk på lokasjonen du står parkert på.
 					</p>
 				</div>
 				<div className="flex flex-col gap-4 w-full">
-					{parkingLocations.map((location) => (
-						<Form method="post" key={location.Name}>
-							<input type="hidden" name="locationName" value={location.Name} />
-							<input type="hidden" name="userId" value={user.id} />
-							<button type="submit" className="w-full text-left">
-								<Card className="w-full hover:scale-95 transition-all duration-300 cursor-pointer">
-									<CardHeader>
-										<div className="flex justify-between items-center w-full">
-											<CardTitle>{location.Name}</CardTitle>
-											<p className="text-sm text-muted-foreground">
-												{location.active_parking_spots} /{" "}
-												{location.parking_spots.length}
-											</p>
-										</div>
-										<CardDescription>
-											{location.is_indoors ? "Indoors" : "Outdoors"}
-										</CardDescription>
-									</CardHeader>
-								</Card>
-							</button>
-						</Form>
-					))}
+					{parkingLocations.map((location) => {
+						const isDisabled =
+							location.active_parking_spots >= location.parking_spots.length;
+						return (
+							<Form method="post" key={location.Name}>
+								<input
+									type="hidden"
+									name="locationName"
+									value={location.Name}
+								/>
+								<input type="hidden" name="userId" value={user.id} />
+								<ParkingLocationCard
+									data={{
+										isDisabled,
+										isIndoors: location.is_indoors || false,
+										name: location.Name,
+										activeParkingSpots: location.active_parking_spots,
+										parkingSpots: location.parking_spots.length,
+									}}
+								/>
+							</Form>
+						);
+					})}
 				</div>
 			</div>
 		</div>
@@ -102,66 +82,66 @@ export default function Index() {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
 	const { supabase } = getSupabaseServerClient(request);
-	const { data: sessionData } = await supabase.auth.getSession();
-	const session = sessionData.session;
-
-	if (!session) return redirect("/login");
 
 	const formData = await request.formData();
-	const locationName = formData.get("locationName") as string | null;
-	const userId = formData.get("userId") as string | null;
+	const locationName = formData.get("locationName");
+	const userId = formData.get("userId");
 
-	if (!locationName || !userId) {
-		console.error("Missing location name or user id");
-		return { error: "Missing location name or user id" };
-	}
+	if (typeof locationName !== "string" || typeof userId !== "string")
+		return { error: "Missing or invalid form fields" };
 
 	const { data: parkingSpots, error: spotsError } = await supabase
 		.from("parking_spots")
 		.select("*")
 		.eq("location", locationName);
 
-	if (spotsError || !parkingSpots?.length) {
-		console.error("No parking spots found for location");
-		return { error: "No parking spots found" };
-	}
+	if (spotsError) return { error: spotsError.message };
+	if (!parkingSpots?.length) return { error: "No parking spots found" };
 
-	for (const spot of parkingSpots) {
-		const { data: activeRequest, error: requestError } = await supabase
-			.from("parking_requests")
-			.select("id")
-			.eq("parking_spot", spot.id)
-			.eq("is_active", true)
-			.maybeSingle();
+	const { data: activeRequests, error: requestError } = await supabase
+		.from("parking_requests")
+		.select("parking_spot")
+		.in(
+			"parking_spot",
+			parkingSpots.map((spot) => spot.id),
+		)
+		.eq("is_active", true);
 
-		if (requestError) {
-			console.error(requestError);
-			continue;
-		}
+	if (requestError) return { error: requestError.message };
 
-		if (!activeRequest) {
-			const { error: insertError } = await supabase
-				.from("parking_requests")
-				.insert([
-					{
-						user_id: userId,
-						parking_spot: spot.id,
-						is_active: true,
-						created_at: new Date(),
-						expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24),
-					},
-				])
-				.select()
-				.single();
+	const unavailableIds = new Set(activeRequests?.map((r) => r.parking_spot));
+	const availableSpot = parkingSpots.find((s) => !unavailableIds.has(s.id));
 
-			if (insertError) {
-				console.error("Insert error:", insertError);
-				return { error: insertError.message };
-			}
+	if (!availableSpot) return { error: "No available parking spots" };
 
-			return redirect("/active-parking");
-		}
-	}
+	const expires = getExpiryTime();
 
-	return { error: "No available parking spots at this location" };
+	const { error: insertError } = await supabase
+		.from("parking_requests")
+		.insert([
+			{
+				user_id: userId,
+				parking_spot: availableSpot.id,
+				is_active: true,
+				created_at: new Date(),
+				expires_at: expires,
+			},
+		])
+		.select()
+		.single();
+
+	if (insertError) return { error: insertError.message };
+
+	return redirect("/active-parking");
 };
+
+function getExpiryTime(): Date {
+	const now = new Date();
+	const expires = new Date(now);
+	expires.setHours(17, 0, 0, 0);
+	if (now > expires) {
+		expires.setDate(expires.getDate() + 1);
+		expires.setHours(0, 0, 0, 0);
+	}
+	return expires;
+}

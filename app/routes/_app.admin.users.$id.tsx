@@ -104,10 +104,7 @@ export default function AdminUser() {
 								{data.is_verified ? "Verified" : "Unverified"}
 							</Badge>
 						</button>
-						<DeleteUserDialog
-							userId={data.id}
-							personalUserId={data.personal_user_id || ""}
-						/>
+
 						<input type="hidden" name="type" value="verifyUser" />
 						<input type="hidden" name="id" value={data.id} />
 					</fetcher.Form>
@@ -122,6 +119,10 @@ export default function AdminUser() {
 				<Button type="submit" name="type" value="resetPassword">
 					Reset Password
 				</Button>
+				<DeleteUserDialog
+					userId={data.id}
+					personalUserId={data.personal_user_id || ""}
+				/>
 
 				<input type="hidden" name="id" value={data.id} />
 				<input type="hidden" name="email" value={data.email} />

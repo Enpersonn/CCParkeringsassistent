@@ -64,14 +64,3 @@ export default function Admin() {
 		</div>
 	);
 }
-
-export function ErrorBoundary() {
-	const error = useRouteError();
-	console.log(error);
-	return (
-		<div>
-			<h1>Error</h1>
-			<p>{error instanceof Error ? error.message : "Unknown error"}</p>
-		</div>
-	);
-}

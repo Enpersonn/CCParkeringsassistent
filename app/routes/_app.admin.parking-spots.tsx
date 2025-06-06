@@ -3,22 +3,13 @@ import { Link, useLoaderData } from "@remix-run/react";
 import {
 	createColumnHelper,
 	getCoreRowModel,
-	type Row,
 	useReactTable,
 } from "@tanstack/react-table";
 import { EyeIcon } from "lucide-react";
 import BasicTable from "~/components/general/table/basic-table";
 import { Button } from "~/components/ui/button";
+import type { ParkingSpot } from "~/types/app/parking-spot";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
-
-type ParkingSpot = {
-	id: string;
-	Name: string;
-	location: string;
-	Max_vehicel_height?: number;
-	Max_vehicel_width?: number;
-	Max_vehicel_length?: number;
-};
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
 	const { supabase } = getSupabaseServerClient(request);
