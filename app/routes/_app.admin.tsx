@@ -3,7 +3,6 @@ import {
 	Link,
 	Outlet,
 	redirect,
-	useLoaderData,
 	useLocation,
 	useRouteError,
 } from "@remix-run/react";
@@ -32,7 +31,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function Admin() {
-	const { user } = useLoaderData<typeof loader>();
 	const location = useLocation();
 	return (
 		<div className="flex flex-col gap-5 h-screen w-screen items-start pt-10 justify-start max-w-5xl mx-auto px-4">

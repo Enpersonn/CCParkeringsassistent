@@ -2,20 +2,12 @@ import { Form, useFetcher, useLoaderData } from "@remix-run/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 import { Button } from "~/components/ui/button";
-import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "~/components/ui/dialog";
+
 import { Badge } from "~/components/ui/badge";
 import { cn } from "~/lib/utils";
 import { toast } from "sonner";
 import React from "react";
+import DeleteUserDialog from "~/components/admin/user/delete-user-dialog";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 	const { id } = params;
@@ -112,7 +104,10 @@ export default function AdminUser() {
 								{data.is_verified ? "Verified" : "Unverified"}
 							</Badge>
 						</button>
-
+						<DeleteUserDialog
+							userId={data.id}
+							personalUserId={data.personal_user_id || ""}
+						/>
 						<input type="hidden" name="type" value="verifyUser" />
 						<input type="hidden" name="id" value={data.id} />
 					</fetcher.Form>
@@ -127,42 +122,7 @@ export default function AdminUser() {
 				<Button type="submit" name="type" value="resetPassword">
 					Reset Password
 				</Button>
-				<Dialog>
-					<DialogTrigger asChild>
-						<Button
-							type="button"
-							variant="destructive"
-							disabled={data.id === data.personal_user_id}
-						>
-							Delete User
-						</Button>
-					</DialogTrigger>
-					<DialogContent>
-						<DialogHeader>
-							<DialogTitle>Delete User</DialogTitle>
-						</DialogHeader>
-						<DialogDescription>
-							Are you sure you want to delete this user? This action cannot be
-							undone.
-						</DialogDescription>
-						<DialogFooter>
-							<DialogClose asChild>
-								<Button type="button" variant="outline">
-									Cancel
-								</Button>
-							</DialogClose>
-							<Button
-								type="submit"
-								name="type"
-								value="deleteUser"
-								variant="destructive"
-								disabled={data.id === data.personal_user_id}
-							>
-								Delete User
-							</Button>
-						</DialogFooter>
-					</DialogContent>
-				</Dialog>
+
 				<input type="hidden" name="id" value={data.id} />
 				<input type="hidden" name="email" value={data.email} />
 			</Form>
@@ -170,7 +130,7 @@ export default function AdminUser() {
 	);
 }
 
-export async function action({ params, request }: ActionFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
 	const formData = await request.formData();
 	const id = formData.get("id");
 	const email = formData.get("email");
