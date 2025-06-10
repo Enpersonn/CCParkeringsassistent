@@ -12,7 +12,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	const { error } = await supabase
 		.from("parking_requests")
-		.update({ is_active: false })
+		.update({ is_active: false, disabled_at: new Date() })
 		.eq("id", id);
 
 	if (error) return { error: error.message };
