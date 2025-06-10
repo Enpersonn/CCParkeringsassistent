@@ -1,32 +1,60 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
+import { generateCacheKey, getCachedData } from "~/utils/cache.server";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { supabase } = getSupabaseServerClient(request);
-	const { data, error } = await supabase.from("parking_requests").select("*");
-	if (error) throw new Error(error.message);
-
-	const createdAt = data?.map((log) => {
-		return {
-			...log,
-			created_at: new Date(log.created_at).toLocaleString([], {
-				hour: "2-digit",
-				minute: "2-digit",
+	const cachedData = await getCachedData(
+		{
+			key: generateCacheKey("admin-logs", {
+				timestamp: new Date().toISOString(),
 			}),
-		};
-	});
+			ttl: 1000 * 60 * 2,
+		},
+		async () => {
+			const { data, error } = await supabase
+				.from("parking_requests")
+				.select("*");
+			if (error) throw new Error(error.message);
+			return { rawLogs: data };
+		},
+	);
+	const rawLogs = cachedData.rawLogs;
 
-	const disabled_at = data?.map((log) => {
-		return {
-			id: log.id,
-			user_id: log.user_id,
-			parking_spot: log.parking_spot,
-			disabled_at: new Date(log.disabled_at).toLocaleString([], {
-				hour: "2-digit",
-				minute: "2-digit",
-			}),
-		};
-	});
+	const logs = [];
 
-	return createdAt;
+	for (const log of rawLogs) {
+		if (log.created_at) {
+			logs.push({
+				id: log.id,
+				user_id: log.user_id,
+				parking_spot: log.parking_spot,
+				timestamp: log.created_at,
+				event_type: "created",
+			});
+		}
+		if (log.disabled_at) {
+			logs.push({
+				id: log.id,
+				user_id: log.user_id,
+				parking_spot: log.parking_spot,
+				timestamp: log.disabled_at,
+				event_type: "disabled",
+			});
+		}
+	}
+
+	logs.sort(
+		(a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+	);
+
+	const formattedLogs = logs.map((log) => ({
+		...log,
+		timestamp: new Date(log.timestamp).toLocaleString([], {
+			hour: "2-digit",
+			minute: "2-digit",
+		}),
+	}));
+
+	return { logs: formattedLogs };
 }

@@ -49,8 +49,10 @@ export default function Admin() {
 						<Link to="/admin/logs">Se logg</Link>
 					</Button>
 				</CardHeader>
-				<CardContent>
-					<Outlet />
+				<CardContent className="overflow-y-hidden max-h-[calc(100vh-20rem)] h-full">
+					<div className="overflow-y-auto max-h-[calc(100vh-20rem)] h-full">
+						<Outlet />
+					</div>
 				</CardContent>
 			</Card>
 		</div>
