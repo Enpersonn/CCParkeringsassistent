@@ -22,23 +22,21 @@ export default function DeleteUserDialog({
 					variant="destructive"
 					disabled={userId === personalUserId}
 				>
-					Delete User
+					Slett bruker
 				</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>Delete User</DialogTitle>
+					<DialogTitle>Slett bruker</DialogTitle>
 				</DialogHeader>
 				<DialogDescription>
-					Are you sure you want to delete this user? This action cannot be
-					undone.
+					Er du sikker på at du vil slette denne brukeren? Denne handlingen kan
+					ikke angres.
 				</DialogDescription>
 				<DialogFooter>
-					<DialogClose asChild>
-						<Button type="button" variant="outline">
-							Cancel
-						</Button>
-					</DialogClose>
+					<Button type="button" variant="outline">
+						Avbryt
+					</Button>
 					<Button
 						type="submit"
 						name="type"
@@ -46,7 +44,7 @@ export default function DeleteUserDialog({
 						variant="destructive"
 						disabled={userId === personalUserId}
 					>
-						Delete User
+						Slett bruker
 					</Button>
 				</DialogFooter>
 			</DialogContent>

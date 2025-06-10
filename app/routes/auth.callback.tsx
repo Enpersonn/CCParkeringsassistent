@@ -4,21 +4,21 @@ import { Button } from "~/components/ui/button";
 export default function AuthCallback() {
 	return (
 		<div className="flex h-screen w-screen items-center justify-center">
-			<div className="flex flex-col gap-4 items-center justify-center">
+			<div className="flex flex-col gap-4 items-center justify-center max-w-5xl mx-auto px-4">
 				<div>
-					<h1 className="text-2xl font-bold">
-						Your account is being processed
+					<h1 className="text-2xl font-bold text-center">
+						Kontoen din blir behandlet
 					</h1>
 					<p className="text-sm text-muted-foreground">
-						To access the app, an admin must verify your account.
+						For å få tilgang til appen, må en admin verifisere kontoen din.
 					</p>
 				</div>
 				<div className="flex flex-col gap-2 items-center justify-center">
 					<p className="text-sm text-muted-foreground">
-						Please check back later.
+						Vennligst sjekk tilbake senere.
 					</p>
 					<Button>
-						<Link to="/login">Login</Link>
+						<Link to="/login">Logg inn</Link>
 					</Button>
 				</div>
 			</div>

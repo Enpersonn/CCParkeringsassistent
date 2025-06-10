@@ -15,7 +15,9 @@ const StatsCard = ({ title, valueTitle, value, link }: StatsCardProps) => {
 			<CardHeader className="flex flex-row justify-between items-center mb-4">
 				<h2 className="text-xl font-semibold">{title}</h2>
 				<Button asChild variant={"link"} className="px-0">
-					<Link to={link}>Manage</Link>
+					<Link prefetch="intent" to={link}>
+						Administrer
+					</Link>
 				</Button>
 			</CardHeader>
 			<CardContent className="flex justify-between items-center">
