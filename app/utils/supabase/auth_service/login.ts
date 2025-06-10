@@ -9,9 +9,7 @@ export async function login(request: Request, email: string, password: string) {
 			password,
 		});
 
-	if (authError) {
-		throw new Error(authError.message);
-	}
+	if (authError) throw new Error(authError.message);
 
 	const { data: profile, error: profileError } = await supabase
 		.from("profiles")
@@ -19,9 +17,7 @@ export async function login(request: Request, email: string, password: string) {
 		.eq("id", authData.user?.id)
 		.single();
 
-	if (profileError) {
-		throw new Error(profileError.message);
-	}
+	if (profileError) throw new Error(profileError.message);
 
 	return {
 		headers,

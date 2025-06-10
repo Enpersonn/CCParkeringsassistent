@@ -1,7 +1,12 @@
 import { Link } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
+import { useLoaderData } from "@remix-run/react";
+import type { loader as loaderFn } from "./loader";
 
+export { loader } from "./loader";
 export default function AuthCallback() {
+	const { hasSession } = useLoaderData<typeof loaderFn>();
+
 	return (
 		<div className="flex h-screen w-screen items-center justify-center">
 			<div className="flex flex-col gap-4 items-center justify-center max-w-5xl mx-auto px-4">
@@ -17,9 +22,15 @@ export default function AuthCallback() {
 					<p className="text-sm text-muted-foreground">
 						Vennligst sjekk tilbake senere.
 					</p>
-					<Button>
-						<Link to="/login">Logg inn</Link>
-					</Button>
+					{hasSession ? (
+						<Button asChild>
+							<Link to="/">Gå til forsiden</Link>
+						</Button>
+					) : (
+						<Button asChild>
+							<Link to="/login">Logg inn</Link>
+						</Button>
+					)}
 				</div>
 			</div>
 		</div>
