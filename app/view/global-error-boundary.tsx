@@ -1,7 +1,8 @@
-import { useNavigate } from "@remix-run/react";
+import { useNavigate, useRouteError } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 
 export default function GlobalErrorBoundary() {
+	const error = useRouteError();
 	const navigate = useNavigate();
 	return (
 		<div className="flex flex-col items-center justify-center h-screen gap-4">
@@ -17,6 +18,17 @@ export default function GlobalErrorBoundary() {
 			<Button onClick={() => navigate(-1)} className="mt-4">
 				Refresh Page
 			</Button>
+			<div className="text-sm text-muted-foreground">
+				{error instanceof Error ? (
+					<pre>
+						{error.message}
+						<br />
+						{error.stack}
+					</pre>
+				) : (
+					<pre>{JSON.stringify(error, null, 2)}</pre>
+				)}
+			</div>
 		</div>
 	);
 }
