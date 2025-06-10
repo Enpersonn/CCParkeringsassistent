@@ -1,35 +1,9 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
-import {
-	Link,
-	Outlet,
-	redirect,
-	useLocation,
-	useNavigate,
-} from "@remix-run/react";
+import { Link, Outlet, useLocation, useNavigate } from "@remix-run/react";
 import { ChevronLeftIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Card, CardHeader, CardContent, CardTitle } from "~/components/ui/card";
-import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-	const { supabase } = getSupabaseServerClient(request);
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
-
-	if (!user || user.app_metadata?.role !== "admin") {
-		return redirect("/login");
-	}
-
-	const data = {
-		user: {
-			id: user.id,
-			email: user.email,
-		},
-	};
-
-	return data;
-}
+export { loader } from "./loader";
 
 export default function Admin() {
 	const location = useLocation();
@@ -56,8 +30,8 @@ export default function Admin() {
 					</Link>
 				</Button>
 				<Button asChild className="col-start-2">
-					<Link to="/">
-						<p>Back to app</p>
+					<Link prefetch="intent" to="/">
+						<p>Tilbake til app</p>
 					</Link>
 				</Button>
 			</header>
@@ -72,7 +46,7 @@ export default function Admin() {
 						<CardTitle className="text-xl font-bold">Admin</CardTitle>
 					</div>
 					<Button variant="outline" asChild>
-						<Link to="/admin/logs">View logs</Link>
+						<Link to="/admin/logs">Se logg</Link>
 					</Button>
 				</CardHeader>
 				<CardContent>

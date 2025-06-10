@@ -1,7 +1,5 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { Form, Link, useNavigation, useActionData } from "@remix-run/react";
+import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import {
 	Card,
 	CardContent,
@@ -9,26 +7,14 @@ import {
 	CardHeader,
 	CardTitle,
 } from "~/components/ui/card";
-import { signup } from "~/utils/supabase/auth_service/signup";
+import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { signupSchema } from "~/schemas/auth/signup";
+import type { action as actionFn } from "./action";
 
-type ActionData = {
-	errors:
-		| {
-				type: "validation";
-				email?: string[];
-				password?: string[];
-				confirmPassword?: string[];
-		  }
-		| {
-				type: "form";
-				form: string[];
-		  };
-};
+export { action } from "./action";
 
 export default function Signup() {
-	const actionData = useActionData<ActionData>();
+	const actionData = useActionData<typeof actionFn>();
 	const navigation = useNavigation();
 
 	return (
@@ -36,7 +22,7 @@ export default function Signup() {
 			<Form method="post" className="w-full">
 				<Card className=" w-full space-y-4">
 					<CardHeader>
-						<CardTitle>Sign Up</CardTitle>
+						<CardTitle>Registrer deg</CardTitle>
 					</CardHeader>
 					<CardContent className="w-full space-y-4">
 						<div className="flex flex-col gap-2 w-full">
@@ -51,7 +37,7 @@ export default function Signup() {
 						</div>
 						<div className="flex gap-2 w-full">
 							<div className="flex flex-col gap-2 w-full">
-								<Label className="w-full">Password</Label>
+								<Label className="w-full">Passord</Label>
 								<Input type="password" name="password" />
 								{actionData?.errors?.type === "validation" &&
 									actionData.errors.password && (
@@ -61,7 +47,7 @@ export default function Signup() {
 									)}
 							</div>
 							<div className="flex flex-col gap-2 w-full">
-								<Label className="w-full">Confirm Password</Label>
+								<Label className="w-full">Bekreft passord</Label>
 								<Input type="password" name="confirmPassword" />
 								{actionData?.errors?.type === "validation" &&
 									actionData.errors.confirmPassword && (
@@ -79,43 +65,16 @@ export default function Signup() {
 					</CardContent>
 					<CardFooter className="flex justify-between">
 						<Button variant="link" asChild>
-							<Link to="/login">Login</Link>
+							<Link to="/login">Logg inn</Link>
 						</Button>
-						<Button type="submit" disabled={navigation.state === "submitting"}>
-							{navigation.state === "submitting" ? "Signing up..." : "Sign up"}
+						<Button type="submit" disabled={navigation.state !== "idle"}>
+							{navigation.state !== "idle"
+								? "Registrerer deg..."
+								: "Registrer deg"}
 						</Button>
 					</CardFooter>
 				</Card>
 			</Form>
 		</div>
 	);
-}
-
-export async function action({ request }: ActionFunctionArgs) {
-	const formData = Object.fromEntries(await request.formData());
-	const result = signupSchema.safeParse(formData);
-
-	if (!result.success) {
-		return {
-			errors: {
-				type: "validation" as const,
-				...result.error.flatten().fieldErrors,
-			},
-		};
-	}
-
-	const { email, password, confirmPassword } = result.data;
-
-	try {
-		return await signup(request, email, password, confirmPassword);
-	} catch (error: unknown) {
-		const errorMessage =
-			error instanceof Error ? error.message : "Failed to sign up";
-		return {
-			errors: {
-				type: "form" as const,
-				form: [errorMessage],
-			},
-		};
-	}
 }

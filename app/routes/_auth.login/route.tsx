@@ -1,8 +1,6 @@
-import { redirect } from "@remix-run/node";
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { login } from "~/utils/supabase/auth_service/login";
-import { z } from "zod";
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import { Form, Link, useActionData, useNavigation } from "@remix-run/react";
+import { Loader2 } from "lucide-react";
+import { Button } from "~/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -12,13 +10,13 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { Button } from "~/components/ui/button";
-import { Link } from "@remix-run/react";
-import { loginSchema } from "~/schemas/auth/login";
+import type { action as actionFn } from "./action";
+
+export { action } from "./action";
 
 export default function Login() {
 	const navigation = useNavigation();
-	const actionData = useActionData<typeof action>();
+	const actionData = useActionData<typeof actionFn>();
 
 	return (
 		<div className="flex h-screen w-screen items-center justify-center max-w-5xl mx-auto px-4">
@@ -39,7 +37,7 @@ export default function Login() {
 								)}
 						</div>
 						<div className="flex flex-col gap-2 w-full">
-							<Label>Password</Label>
+							<Label>Passord</Label>
 							<Input type="password" name="password" />
 							{actionData?.errors?.type === "validation" &&
 								actionData.errors.password && (
@@ -56,45 +54,18 @@ export default function Login() {
 					</CardContent>
 					<CardFooter className="flex justify-between">
 						<Button variant="link" asChild>
-							<Link to="/signup">Sign up</Link>
+							<Link to="/signup">Registrer deg</Link>
 						</Button>
-						<Button type="submit" disabled={navigation.state === "submitting"}>
-							{navigation.state === "submitting" ? "Logging in..." : "Login"}
+						<Button type="submit" disabled={navigation.state !== "idle"}>
+							{navigation.state !== "idle" ? (
+								<Loader2 className="size-4 animate-spin" />
+							) : (
+								"Logg inn"
+							)}
 						</Button>
 					</CardFooter>
 				</Card>
 			</Form>
 		</div>
 	);
-}
-
-export async function action({ request }: ActionFunctionArgs) {
-	const formData = Object.fromEntries(await request.formData());
-	const result = loginSchema.safeParse(formData);
-
-	if (!result.success) {
-		return {
-			errors: {
-				type: "validation" as const,
-				...result.error.flatten().fieldErrors,
-			},
-		};
-	}
-
-	const { email, password } = result.data;
-
-	try {
-		const { headers, redirectTo } = await login(request, email, password);
-		return redirect(redirectTo, { headers });
-	} catch (error: unknown) {
-		console.error(error);
-		const errorMessage =
-			error instanceof Error ? error.message : "Wrong email or password";
-		return {
-			errors: {
-				type: "form" as const,
-				form: [errorMessage],
-			},
-		};
-	}
 }

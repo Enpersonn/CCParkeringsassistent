@@ -1,4 +1,3 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import {
 	createColumnHelper,
@@ -11,38 +10,11 @@ import BasicTable from "~/components/general/table/basic-table";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import type { ParkingRequest } from "~/types/app/parking-request";
-import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
+import type { loader as loaderFn } from "./loader";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-	const { supabase } = getSupabaseServerClient(request);
-	const { data: sessionData } = await supabase.auth.getSession();
-	const session = sessionData.session;
-
-	if (!session) throw new Error("Not authenticated");
-
-	const { data: parkingRequests, error: parkingRequestsError } =
-		await supabase.functions.invoke("get-parking-requests", {
-			headers: {
-				Authorization: `Bearer ${session.access_token}`,
-				"x-api-key": process.env.ADMIN_API_KEY as string,
-			},
-			body: {
-				access_token: session.access_token,
-			},
-		});
-	if (parkingRequestsError) throw new Error(parkingRequestsError.message);
-
-	const sortedParkingRequests = parkingRequests.requests.sort(
-		(a: ParkingRequest, b: ParkingRequest) =>
-			new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-	);
-
-	return { data: sortedParkingRequests };
-};
-
-export default function AdminParkingRequest() {
+export default function ParkingRequestTable() {
 	const fetcher = useFetcher();
-	const { data } = useLoaderData<typeof loader>();
+	const { data } = useLoaderData<typeof loaderFn>();
 	const columnHelper = createColumnHelper<ParkingRequest>();
 
 	const handleDisableActive = (id: number) => {
@@ -80,6 +52,34 @@ export default function AdminParkingRequest() {
 				);
 			},
 		}),
+		columnHelper.accessor("created_at", {
+			header: "Oprettet tid",
+			cell: ({ getValue }) => {
+				return (
+					<div>
+						{new Date(getValue()).toLocaleString("no-NO", {
+							hour: "2-digit",
+							minute: "2-digit",
+						})}
+					</div>
+				);
+			},
+		}),
+		columnHelper.accessor("disabled_at", {
+			header: "Deaktivert tid",
+			cell: ({ getValue }) => {
+				return (
+					<div>
+						{getValue()
+							? new Date(getValue() as string).toLocaleString("no-NO", {
+									hour: "2-digit",
+									minute: "2-digit",
+								})
+							: "-"}
+					</div>
+				);
+			},
+		}),
 		columnHelper.accessor("user.email", {
 			header: "Bruker",
 		}),
@@ -99,7 +99,7 @@ export default function AdminParkingRequest() {
 				return row.getValue("is_active") ? (
 					<Button
 						variant="outline"
-						disabled={fetcher.state === "submitting"}
+						disabled={fetcher.state !== "idle"}
 						onClick={() => handleDisableActive(row.getValue("id"))}
 					>
 						Deaktiver
@@ -113,9 +113,5 @@ export default function AdminParkingRequest() {
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 	});
-	return (
-		<div className="flex flex-col gap-4">
-			<BasicTable table={tableInstance} />
-		</div>
-	);
+	return <BasicTable table={tableInstance} />;
 }

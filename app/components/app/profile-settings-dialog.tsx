@@ -1,21 +1,23 @@
+import { Link, useOutletContext } from "@remix-run/react";
+import { SettingsIcon } from "lucide-react";
 import type { User } from "~/types/app/user";
 import { Button } from "../ui/button";
 import {
 	Dialog,
-	DialogTitle,
 	DialogContent,
-	DialogTrigger,
 	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
 } from "../ui/dialog";
-import { Link, useOutletContext } from "@remix-run/react";
-import { SettingsIcon } from "lucide-react";
 import DeleteUserDialog from "./delete-user-dialog";
+import UpdateUserLicensePlateForm from "./update-user-license-plate-form";
 
 export default function ProfileSettingsDialog() {
 	const { user } = useOutletContext<{ user: User }>();
+
 	return (
 		<Dialog>
-			<DialogTrigger>
+			<DialogTrigger asChild>
 				<Button variant="ghost" size="icon">
 					<SettingsIcon />
 				</Button>
@@ -33,10 +35,11 @@ export default function ProfileSettingsDialog() {
 							<Button variant="outline" disabled>
 								Generer gjestnøkkel (Kommer snart)
 							</Button>
-							<Button variant="outline" asChild>
-								<Link to="/auth/signout">Logg ut</Link>
-							</Button>
+							<UpdateUserLicensePlateForm />
 						</div>
+						<Button variant="outline" asChild>
+							<Link to="/auth/signout">Logg ut</Link>
+						</Button>
 					</div>
 					<DeleteUserDialog />
 				</div>
