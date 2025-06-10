@@ -22,7 +22,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 	const data = await getCachedData(
 		{
-			key: generateCacheKey("parking-locations", {
+			key: generateCacheKey("parking-locations-list", {
 				userId: session?.user.id || "anonymous",
 			}),
 			ttl: 1000 * 60 * 2,

@@ -1,4 +1,5 @@
 import { redirect, type ActionFunctionArgs } from "@remix-run/node";
+import { invalidateCache } from "~/utils/cache.server";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -16,6 +17,8 @@ export async function action({ request }: ActionFunctionArgs) {
 		.eq("Name", name);
 
 	if (error) return { error: error.message };
+
+	await invalidateCache("parking-locations-list");
 
 	return redirect("/admin/parking-locations");
 }
