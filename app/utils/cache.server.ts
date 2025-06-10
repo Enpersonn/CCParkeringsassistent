@@ -19,26 +19,18 @@ export async function getCachedData<T extends CacheValue>(
 	const { key, ttl } = options;
 
 	const cachedData = cache.get(key);
-	if (cachedData) {
-		return cachedData as T;
-	}
+	if (cachedData) return cachedData as T;
 
 	const data = await fetchFn();
 	cache.set(key, data, { ttl });
 	return data;
 }
 
-export function invalidateCache(key: string) {
-	cache.delete(key);
-}
+export const invalidateCache = (key: string) => cache.delete(key);
 
-export function invalidateCacheByPrefix(prefix: string) {
-	for (const key of cache.keys()) {
-		if (key.startsWith(prefix)) {
-			cache.delete(key);
-		}
-	}
-}
+export const invalidateCacheByPrefix = (prefix: string) => {
+	for (const key of cache.keys()) key.startsWith(prefix) && cache.delete(key);
+};
 
 export function generateCacheKey(
 	prefix: string,
