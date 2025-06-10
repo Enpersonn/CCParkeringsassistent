@@ -1,63 +1,127 @@
 # CC Parkeringsassistent
 
-A modern parking management system built with Remix, Supabase, and TypeScript. This application helps manage parking spots, users, and parking requests in a user-friendly interface.
+A modern, full-stack parking management system built with Remix, Supabase, and TypeScript. This application provides a comprehensive solution for managing parking facilities, user access, and parking operations with a focus on user experience and administrative control.
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+- [Development Guide](#-development-guide)
+- [Authentication & Authorization](#-authentication--authorization)
+- [Database Schema](#-database-schema)
+- [API Documentation](#-api-documentation)
+- [Deployment](#-deployment)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ## 🚀 Features
 
-- **User Management**
+### User Management
 
-  - User authentication and authorization
-  - User verification system
-  - Admin and regular user roles
-  - Profile management
+- **Authentication & Authorization**
 
-- **Parking Management**
+  - Secure email/password authentication via Supabase
+  - Role-based access control (Admin/User)
+  - Session management with secure token handling
+  - User verification system for new registrations
 
-  - Real-time parking spot availability
-  - Indoor and outdoor parking locations
-  - Parking spot reservations
-  - Active parking tracking
-  - Guest parking management
+- **User Profiles**
+  - Personal information management
+  - Profile picture support
+  - Contact information
+  - Parking preferences
+  - Account settings
 
-- **Admin Dashboard**
-  - User management
-  - Parking spot management
+### Parking Management
+
+- **Real-time Parking Operations**
+
+  - parking spot availability tracking
+  - Indoor and outdoor parking location management
+  - Dynamic parking spot status updates
+
+- **Reservation System**
+  - Spot reservations
+
+### Admin Dashboard
+
+- **Comprehensive Management Tools**
+  - User management and oversight
+  - Parking spot configuration
   - Location management
-  - Parking request monitoring
-  - Guest management
-  - Real-time statistics
+  - parking request monitoring
+  - Guest parking administration
+  - Analytics and reporting
+  - System configuration
 
 ## 🛠 Tech Stack
 
-- **Framework**: [Remix](https://remix.run/) (v2.16.8)
-- **Database & Auth**: [Supabase](https://supabase.com/)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **UI Components**:
-  - [shadcn/ui](https://ui.shadcn.com/)
-- **State Management**: React Hooks
-- **Form Handling**: [React Hook Form](https://react-hook-form.com/)
-- **Validation**: [Zod](https://zod.dev/)
-- **Notifications**: [Sonner](https://sonner.emilkowal.ski/)
-- **Tables**: [TanStack Table](https://tanstack.com/table)
-- **Icons**: [Lucide Icons](https://lucide.dev/)
+### Frontend
+
+- **Framework**: [Remix](https://remix.run/) v2.16.8
+
+  - Server-side rendering
+  - File-based routing
+  - Built-in data loading
+  - Optimized asset handling
+
+- **UI & Styling**
+
+  - [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
+  - [shadcn/ui](https://ui.shadcn.com/) for component library
+  - Responsive design with mobile-first approach
+
+- **State Management & Data Handling**
+  - React Hooks for local state
+  - Zod for schema validation
+  - TanStack Table for data tables
+  - Sonner for toast notifications
+
+### Backend
+
+- **Database & Authentication**: [Supabase](https://supabase.com/)
+  - PostgreSQL database
+  - Row Level Security (RLS)
+  - Built-in authentication
+  - Edge functions
+
+### Development Tools
+
+- **Language**: TypeScript 5.1.6
+- **Package Manager**: pnpm
+- **Code Quality**:
+  - Biome for linting and formatting
+  - TypeScript for type safety
+- **Build Tools**:
+  - Vite for development and building
+  - PostCSS for CSS processing
+  - Tailwind for styling
+- **Performance Optimization**:
+  - LRU Cache (lru-cache) for efficient data caching
+  - Memory-efficient caching strategies
+  - Optimized data retrieval for frequently accessed resources
 
 ## 📦 Project Structure
 
 ```
 app/
 ├── components/         # Reusable UI components
-│   ├── admin/         # Admin-specific components
-│   ├── app/           # Main app components
-│   ├── general/       # Shared components
-│   └── ui/            # Base UI components
+│   ├── admin/         # Admin dashboard components
+│   ├── app/           # Main application components
+│   ├── general/       # Shared/common components
+│   └── ui/            # Base UI components (shadcn/ui)
 ├── hooks/             # Custom React hooks
-├── lib/               # Utility libraries
+├── lib/               # Core libraries and utilities
+│   ├── supabase/     # Supabase client and utilities
+│   ├── auth/         # Authentication utilities
+│   └── utils/        # Helper functions
 ├── routes/            # Application routes
-│   ├── _app/          # Main app routes
-│   ├── _auth/         # Authentication routes
-│   ├── _app/admin/    # Admin routes
-│   └── admin/         # Admin endpoints
+│   ├── _app/         # Main application routes
+│   ├── _auth/        # Authentication routes
+│   ├── _app/admin/   # Admin dashboard routes
+│   └── admin/        # Admin API endpoints
 ├── schemas/           # Zod validation schemas
 ├── types/             # TypeScript type definitions
 ├── utils/             # Utility functions
@@ -69,84 +133,133 @@ app/
 ### Prerequisites
 
 - Node.js >= 20.0.0
-- pnpm (recommended)
+- pnpm (recommended) or npm
+- Git
 - Supabase account and project
+- Code editor (VS Code recommended)
 
 ### Installation
 
-1. Clone the repository:
+1. **Clone the Repository**
 
    ```bash
    git clone [repository-url]
    cd ccparkeringsassistent
    ```
 
-2. Install dependencies:
+2. **Install Dependencies**
 
    ```bash
    pnpm install
    ```
 
-3. Set up environment variables:
-   Create a `.env` file in the root directory with the following variables:
+3. **Environment Setup**
+   Create a `.env` file in the root directory:
 
    ```env
+   # Supabase Configuration
    SUPABASE_URL=your_supabase_url
    SUPABASE_ANON_KEY=your_supabase_anon_key
    ADMIN_API_KEY=your_admin_api_key
+
    ```
 
-4. Start the development server:
+5. **Start Development Server**
    ```bash
    pnpm dev
    ```
 
 ### Available Scripts
 
-- `pnpm dev` - Start development server
+- `pnpm dev` - Start development server with hot reload
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server
 - `pnpm typecheck` - Run TypeScript type checking
 
-## 🔒 Authentication
+## 🔒 Authentication & Authorization
 
 The application uses Supabase for authentication with the following features:
 
-- Email/password authentication
-- Session management
-- Role-based access control (Admin/User)
-- User verification system
+- **Authentication Methods**
+
+  - Email/password authentication
+  - Magic link authentication
+  - Session management
+  - Secure token handling
+
+- **Authorization**
+  - Role-based access control
+  - User roles: Admin, Regular User
+  - Row Level Security (RLS) policies
+  - Protected routes and API endpoints
+
+## 📊 Database Schema
+
+The application uses the following main tables:
+
+- `users` - User accounts
+- `profiles` - profile information
+- `parking_locations` - Parking facility locations
+- `parking_spots` - Parking spot information
+- `parking_requests` - Parking reservations
+- `guests` - Guest parking management
 
 ## 🎨 UI Components
 
-The application uses a combination of Radix UI primitives and shadcn/ui components, styled with Tailwind CSS. Key components include:
+The application uses a modern component library built with:
 
-- Tables for data display
-- Forms for data input
-- Dialogs for confirmations
-- Toast notifications
-- Responsive layouts
-- Dark/light mode support
+- **Base Components**
+
+  - Tables (TanStack Table)
+  - Forms (React Hook Form)
+  - Dialogs and Modals
+  - Toast notifications (Sonner)
+  - Data grids
+  - Charts and graphs
+
+- **Layout Components**
+  - Responsive navigation
+  - Dashboard layouts
+  - Form layouts
+  - Card components
+  - Grid systems
 
 ## 📱 Responsive Design
 
-The application is fully responsive and works on:
+The application is fully responsive and optimized for:
 
-- Desktop browsers
-- Tablets
-- Mobile devices
+- Desktop browsers (1920px and below)
+- Tablets (768px - 1024px)
+- Mobile devices (320px - 767px)
+
+## 🚀 Deployment
+
+The application can be deployed to various platforms:
+
+1. **Build the Application**
+
+   ```bash
+   pnpm build
+   ```
+
+2. **Deploy Options**
+   - Vercel
+   - Netlify
+   - Self-hosted server
+   - Docker container
 
 ## 📝 License
 
 This project is private and proprietary. All rights reserved.
 
-## 👥 Authors
+## 👤 Authors
 
-- Your Nicklas Båkind-Øverjordet
+- Nicklas Båkind-Øverjordet
 
 ## 🙏 Acknowledgments
 
 - Remix team for the amazing framework
 - Supabase team for the backend infrastructure
 - shadcn/ui for the beautiful component library
+- Isaac Z. Schlueter for the lru-cache package
 - All other open-source contributors
