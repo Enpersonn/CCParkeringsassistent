@@ -50,9 +50,9 @@ export default function DeleteParkingSpotDialog({ id }: { id: string }) {
 							<Button
 								variant="destructive"
 								type="submit"
-								disabled={fetcher.state === "submitting"}
+								disabled={fetcher.state !== "idle"}
 							>
-								{fetcher.state === "submitting" ? (
+								{fetcher.state !== "idle" ? (
 									<Loader2 className="size-4 animate-spin" />
 								) : (
 									<>

@@ -47,7 +47,6 @@ const NewParkingSpotDialog = ({
 			<DialogTrigger asChild>
 				<Button>
 					<PlusIcon className="size-4" />
-					Legg til parkeringsplass
 				</Button>
 			</DialogTrigger>
 			<DialogContent>
@@ -84,8 +83,8 @@ const NewParkingSpotDialog = ({
 						<Input type="text" placeholder="Navn" name="name" />
 					</div>
 					<DialogFooter>
-						<Button type="submit">
-							{fetcher.state === "submitting" ? (
+						<Button type="submit" disabled={fetcher.state !== "idle"}>
+							{fetcher.state !== "idle" ? (
 								<Loader2 className="size-4 animate-spin" />
 							) : (
 								"Legg til"

@@ -36,10 +36,14 @@ export default function DeleteUserDialog() {
 							name="user_access_token"
 							value={user.access_token}
 						/>
-						<DialogClose>
-							<Button variant="destructive" type="submit">
-								{fetcher.state === "submitting" ? (
-									<Loader2 className="w-4 h-4 animate-spin" />
+						<DialogClose asChild>
+							<Button
+								variant="destructive"
+								type="submit"
+								disabled={fetcher.state !== "idle"}
+							>
+								{fetcher.state !== "idle" ? (
+									<Loader2 className="size-4 animate-spin" />
 								) : (
 									"Slett bruker"
 								)}
