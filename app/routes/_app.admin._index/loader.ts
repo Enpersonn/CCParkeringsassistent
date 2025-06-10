@@ -37,12 +37,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 			link: "/admin/users",
 		},
 		{
-			title: "Gjester",
-			valueTitle: "Aktive gjester",
-			value: data.activeGuests,
-			link: "/admin/guests",
-		},
-		{
 			title: "Parkeringsplasser",
 			valueTitle: "Total parkeringsplasser",
 			value: data.parkingSpots,
