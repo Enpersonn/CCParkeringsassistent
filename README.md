@@ -128,6 +128,61 @@ app/
 └── view/              # View-specific components
 ```
 
+### Route File Structure
+
+Each route directory can contain the following files:
+
+```
+routes/
+├── _app._index/            # Home route
+│   ├── loader.ts           # Server-side data fetching
+│   ├── action.ts           # Form submissions & data mutations
+│   ├── route.tsx           # Main route component
+│   └── table.tsx           # Table component (if needed)
+├── _app.active-parking/    # Active parking route
+│   ├── loader.ts           # Fetches active parking data
+│   ├── action.ts           # Handles parking updates
+│   └── route.tsx           # Renders active parking UI
+├── auth.callback/          # Route with no loader or action
+├── _auth/                  # Authentication routes
+└── admin/                  # Admin routes
+```
+
+Note: Remix uses dot-based naming for routes (e.g., `_app._index`) rather than nested folders. This is different from Next.js's app router structure. The dot notation in the filename creates the same URL structure as nested folders would.
+
+#### Route File Purposes
+
+- **loader.ts**
+
+  - Server-side function that runs before route rendering
+  - Handles data fetching and preparation
+  - Manages authentication and authorization
+  - Implements caching strategies
+  - Returns data to the route component
+
+- **action.ts**
+
+  - Handles form submissions and data mutations
+  - Processes POST, PUT, DELETE, and PATCH requests
+  - Manages database operations
+  - Handles API endpoints
+  - Returns responses to client actions
+
+- **route.tsx**
+
+  - Main React component for the route
+  - Receives and displays data from loader
+  - Implements page layout and UI
+  - Manages user interactions
+  - Integrates with action handlers
+
+- **table.tsx**
+  - Specialized component for tabular data
+  - Implements TanStack Table functionality
+  - Handles sorting, filtering, and pagination
+  - Manages data formatting and display
+  - Controls row selection and interactions
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -164,7 +219,7 @@ app/
 
    ```
 
-5. **Start Development Server**
+4. **Start Development Server**
    ```bash
    pnpm dev
    ```
