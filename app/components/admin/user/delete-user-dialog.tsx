@@ -1,6 +1,7 @@
+import { Form } from "@remix-run/react";
+import { Button } from "~/components/ui/button";
 import {
 	Dialog,
-	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
@@ -8,7 +9,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "~/components/ui/dialog";
-import { Button } from "~/components/ui/button";
 
 export default function DeleteUserDialog({
 	userId,
@@ -34,18 +34,21 @@ export default function DeleteUserDialog({
 					ikke angres.
 				</DialogDescription>
 				<DialogFooter>
-					<Button type="button" variant="outline">
-						Avbryt
-					</Button>
-					<Button
-						type="submit"
-						name="type"
-						value="deleteUser"
-						variant="destructive"
-						disabled={userId === personalUserId}
-					>
-						Slett bruker
-					</Button>
+					<Form method="post" className="flex gap-2 w-full justify-end">
+						<Button
+							type="submit"
+							name="type"
+							value="deleteUser"
+							variant="destructive"
+							disabled={userId === personalUserId}
+						>
+							Slett bruker
+						</Button>
+						<Button type="button" variant="outline">
+							Avbryt
+						</Button>
+						<input type="hidden" name="id" value={userId} />
+					</Form>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>

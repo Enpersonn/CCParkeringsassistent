@@ -58,23 +58,25 @@ export default function AdminUser() {
 					</fetcher.Form>
 				</div>
 			</div>
-			<Form method="post" className="flex gap-2">
-				<Button
-					type="submit"
-					name="type"
-					value="resetPassword"
-					disabled={fetcher.state !== "idle"}
-				>
-					Tilbakestill passord
-				</Button>
+			<div className="flex gap-2">
+				<fetcher.Form method="post">
+					<Button
+						type="submit"
+						name="type"
+						value="resetPassword"
+						disabled={fetcher.state !== "idle"}
+					>
+						Tilbakestill passord
+					</Button>
+
+					<input type="hidden" name="id" value={data.id} />
+					<input type="hidden" name="email" value={data.email} />
+				</fetcher.Form>
 				<DeleteUserDialog
 					userId={data.id}
 					personalUserId={data.personal_user_id || ""}
 				/>
-
-				<input type="hidden" name="id" value={data.id} />
-				<input type="hidden" name="email" value={data.email} />
-			</Form>
+			</div>
 		</div>
 	);
 }

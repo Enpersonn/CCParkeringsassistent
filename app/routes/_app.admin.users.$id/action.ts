@@ -1,4 +1,6 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
+import { redirect } from "@remix-run/react";
+import { invalidateCache, invalidateCacheByPrefix } from "~/utils/cache.server";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -43,8 +45,8 @@ export async function action({ request }: ActionFunctionArgs) {
 			},
 		});
 		if (error) return { error: `Failed to delete user: ${error.message}` };
-
-		return { message: "Bruker slettet" };
+		invalidateCacheByPrefix("admin-users-list");
+		return redirect("/admin/users");
 	}
 
 	if (actionType === "verifyUser") {
