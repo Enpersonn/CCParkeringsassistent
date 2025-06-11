@@ -1,6 +1,7 @@
-import { redirect } from "@remix-run/react";
 import { getSupabaseServerClient } from "../supabase.server";
 import { invalidateCacheByPrefix } from "~/utils/cache.server";
+import { redirect } from "@remix-run/node";
+
 export async function signup(
 	request: Request,
 	email: string,

@@ -1,6 +1,5 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/react";
-import { invalidateCache, invalidateCacheByPrefix } from "~/utils/cache.server";
+import { redirect, type ActionFunctionArgs } from "@remix-run/node";
+import { invalidateCacheByPrefix } from "~/utils/cache.server";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 
 export async function action({ request }: ActionFunctionArgs) {

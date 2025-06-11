@@ -1,4 +1,4 @@
-import { redirect } from "@remix-run/react";
+import { redirect } from "@remix-run/node";
 import { getSupabaseServerClient } from "../supabase.server";
 
 export async function signOut(request: Request) {

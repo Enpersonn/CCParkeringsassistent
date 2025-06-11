@@ -20,7 +20,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 			const { data, error } = await supabase.functions.invoke("super-handler", {
 				headers: {
 					authorization: `Bearer ${session?.access_token}`,
-					"x-api-key": import.meta.env.VITE_ADMIN_API_KEY || "",
+					"x-api-key": process.env.ADMIN_API_KEY || "",
 				},
 			});
 
