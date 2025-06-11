@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
+import { DateTime } from "luxon";
 import { generateCacheKey, getCachedData } from "~/utils/cache.server";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 
@@ -20,11 +21,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 	if (
 		parkingRequest.expires_at &&
-		new Date(parkingRequest.expires_at) < new Date()
+		DateTime.fromJSDate(parkingRequest.expires_at) < DateTime.now().setZone("Europe/Oslo")
 	) {
 		await supabase
 			.from("parking_requests")
-			.update({ is_active: false, disabled_at: new Date() })
+			.update({
+				is_active: false,
+				disabled_at: DateTime.now().setZone("Europe/Oslo").toJSDate(),
+			})
 			.eq("id", parkingRequest.id);
 		return redirect("/");
 	}

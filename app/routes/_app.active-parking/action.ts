@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
+import { DateTime } from "luxon";
 import { invalidateCacheByPrefix } from "~/utils/cache.server";
 import { getSupabaseServerClient } from "~/utils/supabase/supabase.server";
 
@@ -13,9 +14,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	const id = Number(parkingRequestId);
 
+	const now = DateTime.now().setZone("Europe/Oslo");
+
 	const { error: parkingRequestError } = await supabase
 		.from("parking_requests")
-		.update({ is_active: false, disabled_at: new Date() })
+		.update({ is_active: false, disabled_at: now.toJSDate() })
 		.eq("id", id)
 		.single();
 

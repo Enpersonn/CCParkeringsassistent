@@ -6,6 +6,7 @@ export async function signup(
 	email: string,
 	password: string,
 	confirmPassword: string,
+	origin?: string,
 ) {
 	if (password !== confirmPassword) {
 		throw new Response(JSON.stringify({ error: "Passwords do not match" }), {
@@ -19,7 +20,7 @@ export async function signup(
 		email,
 		password,
 		options: {
-			emailRedirectTo: `${process.env.APP_URL}/auth/callback`,
+			emailRedirectTo: origin ? `${origin}/auth/callback` : undefined,
 		},
 	});
 
