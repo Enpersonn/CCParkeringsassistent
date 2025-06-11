@@ -1,4 +1,4 @@
-import { Form } from "@remix-run/react";
+import { Form, useNavigation } from "@remix-run/react";
 import { Button } from "~/components/ui/button";
 import {
 	Dialog,
@@ -14,6 +14,7 @@ export default function DeleteUserDialog({
 	userId,
 	personalUserId,
 }: { userId: string; personalUserId: string }) {
+	const navigation = useNavigation();
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
@@ -40,9 +41,13 @@ export default function DeleteUserDialog({
 							name="type"
 							value="deleteUser"
 							variant="destructive"
-							disabled={userId === personalUserId}
+							disabled={
+								userId === personalUserId || navigation.state !== "idle"
+							}
 						>
-							Slett bruker
+							{navigation.state !== "idle"
+								? "Sletter bruker..."
+								: "Slett bruker"}
 						</Button>
 						<Button type="button" variant="outline">
 							Avbryt

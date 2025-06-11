@@ -1,6 +1,5 @@
 import { getSupabaseServerClient } from "../supabase.server";
 import { invalidateCacheByPrefix } from "~/utils/cache.server";
-import { redirect } from "@remix-run/node";
 
 export async function signup(
 	request: Request,
@@ -10,9 +9,7 @@ export async function signup(
 	origin?: string,
 ) {
 	if (password !== confirmPassword) {
-		throw new Response(JSON.stringify({ error: "Passwords do not match" }), {
-			status: 400,
-		});
+		return { error: "Passwords do not match" };
 	}
 
 	const { supabase, headers } = getSupabaseServerClient(request);
@@ -26,12 +23,10 @@ export async function signup(
 	});
 
 	if (authError) {
-		throw new Response(JSON.stringify({ error: authError.message }), {
-			status: 400,
-		});
+		return { error: authError.message };
 	}
 
 	invalidateCacheByPrefix("admin-users-list");
 
-	return redirect("/check_email");
+	return { success: true, headers };
 }
