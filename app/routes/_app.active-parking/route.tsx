@@ -37,17 +37,19 @@ export default function ActiveParking() {
 						<CalendarIcon className="size-6 text-muted-foreground" />
 						<p className="text-base text-muted-foreground">
 							Startet parkering:{" "}
-							{new Date(created_at).toLocaleTimeString([], {
+							{new Intl.DateTimeFormat("nb-NO", {
 								hour: "2-digit",
 								minute: "2-digit",
-							})}
+								timeZone: "Europe/Oslo",
+							}).format(new Date(created_at))}
 						</p>
 						<p className="text-base text-muted-foreground">
 							Du er parkert til{" "}
-							{new Date(expires_at).toLocaleTimeString([], {
+							{new Intl.DateTimeFormat("nb-NO", {
 								hour: "2-digit",
 								minute: "2-digit",
-							})}
+								timeZone: "Europe/Oslo",
+							}).format(new Date(expires_at))}
 						</p>
 					</div>
 				</CardContent>

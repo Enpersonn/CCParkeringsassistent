@@ -1,12 +1,14 @@
+import { DateTime } from "luxon";
+
 const getExpiryTime = (): Date => {
-	const now = new Date();
-	const expires = new Date(now);
-	expires.setHours(17, 0, 0, 0);
-	if (now > expires) {
-		expires.setDate(expires.getDate() + 1);
-		expires.setHours(0, 0, 0, 0);
+	const now = DateTime.now().setZone("Europe/Oslo");
+	let expiry = now.set({ hour: 17, minute: 0, second: 0, millisecond: 0 });
+
+	if (now > expiry) {
+		expiry = expiry.plus({ days: 1 });
 	}
-	return expires;
+
+	return expiry.toJSDate();
 };
 
 export default getExpiryTime;

@@ -57,10 +57,11 @@ export default function ParkingRequestTable() {
 			cell: ({ getValue }) => {
 				return (
 					<div>
-						{new Date(getValue()).toLocaleString("no-NO", {
+						{new Intl.DateTimeFormat("nb-NO", {
 							hour: "2-digit",
 							minute: "2-digit",
-						})}
+							timeZone: "Europe/Oslo",
+						}).format(new Date(getValue()))}
 					</div>
 				);
 			},
@@ -71,10 +72,11 @@ export default function ParkingRequestTable() {
 				return (
 					<div>
 						{getValue()
-							? new Date(getValue() as string).toLocaleString("no-NO", {
+							? new Intl.DateTimeFormat("nb-NO", {
 									hour: "2-digit",
 									minute: "2-digit",
-								})
+									timeZone: "Europe/Oslo",
+								}).format(new Date(getValue() as string))
 							: "-"}
 					</div>
 				);

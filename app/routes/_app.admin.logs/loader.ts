@@ -50,10 +50,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 	const formattedLogs = logs.map((log) => ({
 		...log,
-		timestamp: new Date(log.timestamp).toLocaleString([], {
+		timestamp: new Intl.DateTimeFormat("nb-NO", {
 			hour: "2-digit",
 			minute: "2-digit",
-		}),
+			timeZone: "Europe/Oslo",
+		}).format(new Date(log.timestamp)),
 	}));
 
 	return { logs: formattedLogs };
