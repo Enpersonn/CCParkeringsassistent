@@ -20,29 +20,20 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	const { email, password, confirmPassword } = result.data;
 
-	try {
-		const { success, headers } = await signup(
-			request,
-			email,
-			password,
-			confirmPassword,
-			origin,
-		);
-		if (success) return redirect("/check_email", { headers });
-		return {
-			errors: {
-				type: "form" as const,
-				form: ["Failed to sign up"],
-			},
-		};
-	} catch (error: unknown) {
-		const errorMessage =
-			error instanceof Error ? error.message : "Failed to sign up";
-		return {
-			errors: {
-				type: "form" as const,
-				form: [errorMessage],
-			},
-		};
-	}
+	const { success, error } = await signup(
+		request,
+		email,
+		password,
+		confirmPassword,
+		origin,
+	);
+
+	if (success) return redirect("/check_email");
+
+	return {
+		errors: {
+			type: "form" as const,
+			form: [error || "Failed to sign up"],
+		},
+	};
 }

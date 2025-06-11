@@ -22,9 +22,7 @@ export async function signup(
 		},
 	});
 
-	if (authError) {
-		return { error: authError.message };
-	}
+	if (authError) return { error: authError.message };
 
 	invalidateCacheByPrefix("admin-users-list");
 
