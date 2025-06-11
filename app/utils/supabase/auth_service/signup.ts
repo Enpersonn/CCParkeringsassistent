@@ -33,5 +33,5 @@ export async function signup(
 
 	invalidateCacheByPrefix("admin-users-list");
 
-	return redirect("/check_email", { headers });
+	return redirect("/check_email");
 }
