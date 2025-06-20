@@ -1,4 +1,4 @@
-import { redirect, type ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { signupSchema } from "~/schemas/auth/signup";
 import { signup } from "~/utils/supabase/auth_service/signup";
 
@@ -20,20 +20,16 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	const { email, password, confirmPassword } = result.data;
 
-	const { success, error } = await signup(
-		request,
-		email,
-		password,
-		confirmPassword,
-		origin,
-	);
-
-	if (success) return redirect("/check_email");
-
-	return {
-		errors: {
-			type: "form" as const,
-			form: [error || "Failed to sign up"],
-		},
-	};
+	try {
+		return await signup(request, email, password, confirmPassword, origin);
+	} catch (error: unknown) {
+		const errorMessage =
+			error instanceof Error ? error.message : "Failed to sign up";
+		return {
+			errors: {
+				type: "form" as const,
+				form: [errorMessage],
+			},
+		};
+	}
 }

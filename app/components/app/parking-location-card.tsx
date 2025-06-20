@@ -32,7 +32,7 @@ const ParkingLocationCard = ({ data }: { data: ParkingLocationCardProps }) => (
 			variant={data.isDisabled ? "secondary" : "outline"}
 			className="w-fit"
 		>
-			{data.isIndoors ? "Indoors" : "Outdoors"}
+			{data.isIndoors ? "Inne" : "Ute"}
 		</Badge>
 	</button>
 );
